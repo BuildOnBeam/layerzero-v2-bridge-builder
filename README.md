@@ -101,4 +101,3 @@ make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> 
 
 - beam oft: [0x09895fbd548404f5D19774dB8Dc45E3484d858a0](https://subnets-test.avax.network/beam/address/0x09895fbd548404f5D19774dB8Dc45E3484d858a0)
 - sepolia oft adapter: [0x3E357dec7b680b11958e5aeCaEA9e3b036901e28](https://sepolia.etherscan.io/address/0x3E357dec7b680b11958e5aeCaEA9e3b036901e28)
-- wired: ✅
