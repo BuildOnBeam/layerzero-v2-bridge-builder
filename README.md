@@ -4,6 +4,22 @@ This document explains how to deploy contracts on two chains using LayerZero's O
 
 In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, so for now, ERC1155 cannot be bridged with the lz-v2.
 
+# Table of Contents
+
+1. [Install dependencies](#install-dependencies)
+2. [Before starting](#before-starting)
+   - [Importing a wallet using cast](#importing-a-wallet-using-cast)
+3. [Deploying an OFT Bridge (ERC20)](#deploying-an-oft-bridge-erc20)
+   - [Commands for Deploying an OFT Bridge](#commands-for-deploying-an-oft-bridge-erc20)
+   - [E2E Test for OFT Bridge](#e2e-test)
+4. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
+   - [Commands for Deploying an ONFT Bridge](#commands-for-deploying-an-onft-bridge-erc721)
+   - [E2E Test for ONFT Bridge](#e2e-test-1)
+5. [Deployed Examples](#deployed-examples)
+   - [ERC721 Example](#erc721)
+   - [ERC20 Example](#erc20)
+
+
 ---
 
 ## Install dependencies
