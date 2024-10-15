@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import {Script, console2} from "forge-std/Script.sol";
-import {BeamOFTAdapter} from "../../contracts/ERC20/BeamOFTAdapter.sol";
-import {LzConfig} from "./LzConfig.sol";
+import {BeamOFTAdapter} from "../../../contracts/ERC20/BeamOFTAdapter.sol";
+import {LzConfig} from "../LzConfig.sol";
 
 /**
  * @notice
