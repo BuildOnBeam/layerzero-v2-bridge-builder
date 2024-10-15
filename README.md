@@ -1,8 +1,14 @@
 # Layerzero v2 Bridge Builder
 
-This document explains the various commands in the Makefile and their usage. These commands are designed to deploy and manage bridge contracts, set peers, and interact with tokens on different chains using `foundry` and `cast`.
+This document explains how to deploy contracts on two chains using LayerZero's OFT (for ERC20) and ONFT (for ERC721) with `oftadapter` and `onftadapter` - check [here for Layerzero v2 documentation](https://docs.layerzero.network/v2/developers/evm/overview). These commands allow deploying two contracts on two separate blockchains for ERC20 and ERC721 tokens.
+
+In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, so for now, ERC1155 cannot be bridged with the lz-v2.
 
 ---
+
+## Install dependencies
+
+To start, install the dependencies running `npm i`
 
 ## Before starting
 
@@ -20,168 +26,60 @@ cast wallet import <name of account> --interactive
 // now your pk is secure in a keystore
 ```
 
-## Commands
+## Deploying an OFT Bridge (ERC20)
 
-### `deploy-bridge`
+This command deploys two contracts on two chains using the LayerZero OFT standard for ERC20 tokens with `oftadapter`.
 
-This command deploys the bridge contracts on two chains, using `RPC_URL_A` and `RPC_URL_B` to interact with two different networks.
-This command deploys an _OFT_ and an _OFTAdapter_. This kind of bridge is needed to wrap existing ERC20 tokens on one chain and bridge them to another chain.
+<details>
+  <summary><strong>Commands for Deploying an OFT Bridge (ERC20)</strong></summary>
 
-> Example: If I want to bridge LINKs from Ethereum Mainnet to Beam, I need to deploy an OFTAdapter contract on Ethereum to wrap LINKs in there, and an OFT contract on Beam.
+### Command
 
-- **Usage**:
+```bash
+make deploy-oft-bridge RPC_URL_A=<RPC url of chain where to deploy the oft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> NAME=<name> SYMBOL=<symbol> DELEGATE=<the owner of the bridge> RPC_URL_B=<RPC url of chain where to deploy the adapter> CHAIN_ID_B=<chain id a> TOKEN=<address of token to wrap>
+```
 
-  ```bash
-  make deploy-bridge RPC_URL_A=<rpc_url_A> CHAIN_ID_A=<chain_id_A> ACCOUNT_NAME=<account> NAME=<name> SYMBOL=<symbol> DELEGATE=<delegate_address> RPC_URL_B=<rpc_url_B> CHAIN_ID_B=<chain_id_B> TOKEN=<token_address>
-  ```
+_then run_
 
-- **Parameters**:
-  - `RPC_URL_A`: RPC URL of the first chain.
-  - `CHAIN_ID_A`: Chain ID of the first chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `NAME`: Name of the OFT token.
-  - `SYMBOL`: Symbol of the OFT token.
-  - `DELEGATE`: Address of the contract owner or delegate.
-  - `RPC_URL_B`: RPC URL of the second chain.
-  - `CHAIN_ID_B`: Chain ID of the second chain.
-  - `TOKEN`: ERC20 address of the token to bridge.
+```bash
+make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the oft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> RPC_URL_B=<RPC url of chain whereyou deployed the oft adapter> CHAIN_ID_B=<chain id b> PEER_A=<contract deployed on chain A>  PEER_B=<contract deployed on chain B>
+```
+
+</details>
 
 ---
 
-### `wire-bridge`
+## Deploying an ONFT Bridge (ERC721)
 
-This command sets peers for both sides of the bridge, wiring the bridge between two chains.
+This command deploys two contracts on two chains using the LayerZero ONFT standard for ERC721 tokens with `onftadapter`.
 
-- **Usage**:
+<details>
+  <summary><strong>Commands for Deploying an ONFT Bridge (ERC721)</strong></summary>
 
-  ```bash
-  make wire-bridge RPC_URL_A=<rpc_url_A> CHAIN_ID_A=<chain_id_A> ACCOUNT_NAME=<account> RPC_URL_B=<rpc_url_B> CHAIN_ID_B=<chain_id_B> PEER_A=<peer_a_address> PEER_B=<peer_b_address>
-  ```
+### Command
 
-- **Parameters**:
-  - `RPC_URL_A`: RPC URL of the first chain.
-  - `CHAIN_ID_A`: Chain ID of the first chain.
-  - `RPC_URL_B`: RPC URL of the second chain.
-  - `CHAIN_ID_B`: Chain ID of the second chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `PEER_A`: Contract address on chain A.
-  - `PEER_B`: Contract address on chain B.
+```bash
+make deploy-onft-bridge RPC_URL_A=<RPC url of chain where to deploy the onft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> NAME=<name> SYMBOL=<symbol> DELEGATE=<the owner of the bridge> RPC_URL_B=<RPC url of chain where to deploy the onft adapter> CHAIN_ID_B=<chain id a> TOKEN=<address of NFT token to wrap>
+```
 
----
+_then run_
 
-### `run-deploy-beam-oft`
+```bash
+make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> RPC_URL_B=<RPC url of chain whereyou deployed the onft adapter> CHAIN_ID_B=<chain id b> PEER_A=<contract deployed on chain A>  PEER_B=<contract deployed on chain B>
+```
 
-Runs the deployment of an OFT (Omnichain Fungible Token) on a specified chain.
+</details>
 
-- **Usage**:
+## Deployed Examples
 
-  ```bash
-  make deploy-beam-oft RPC_URL=<rpc_url> ACCOUNT_NAME=<account> NAME=<name> SYMBOL=<symbol> CHAIN_ID=<chain_id> DELEGATE=<delegate_address>
-  ```
+### ERC721
 
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `NAME`: Name of the OFT token.
-  - `SYMBOL`: Symbol of the OFT token.
-  - `CHAIN_ID`: Chain ID where the token is deployed.
-  - `DELEGATE`: Address of the contract owner or delegate.
+- deployed a mock NFT on sepolia: [0x75163daF35891308c3298F5d5898B1d09c7aC5F3](https://sepolia.etherscan.io/address/0x75163daF35891308c3298F5d5898B1d09c7aC5F3)
+- onft on beam: [0xF5e30876DB81A0BFee35048c0F69b53Fc1f30660](https://subnets-test.avax.network/beam/address/0xF5e30876DB81A0BFee35048c0F69b53Fc1f30660)
+- onft adapter on sepolia: [0x1b39C6BD162bfd0C1d8F8184fc2b4198a99ff56F](https://sepolia.etherscan.io/address/0x1b39C6BD162bfd0C1d8F8184fc2b4198a99ff56F)
 
----
+### ERC20
 
-### `run-deploy-beam-oft-adapter`
-
-Deploys an adapter for the OFT token.
-
-- **Usage**:
-
-  ```bash
-  make deploy-beam-oft-adapter RPC_URL=<rpc_url> ACCOUNT_NAME=<account> CHAIN_ID=<chain_id> DELEGATE=<delegate_address> TOKEN=<token_address>
-  ```
-
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `CHAIN_ID`: Chain ID where the adapter is deployed.
-  - `DELEGATE`: Address of the contract owner or delegate.
-  - `TOKEN`: ERC20 address of the token to be adapted.
-
----
-
-### `add-peer`
-
-Adds a peer to the bridge contract on a given chain.
-
-- **Usage**:
-
-  ```bash
-  make add-peer RPC_URL=<rpc_url> ACCOUNT_NAME=<account> CHAIN_ID=<chain_id> CONTRACT=<contract_address> PEER=<peer_address>
-  ```
-
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `CHAIN_ID`: Chain ID where the contract is deployed.
-  - `CONTRACT`: Contract address of the bridge.
-  - `PEER`: Address of the peer contract.
-
----
-
-### `run-get-info`
-
-Fetches information from a contract.
-
-- **Usage**:
-
-  ```bash
-  make get-info RPC_URL=<rpc_url> EID=<event_id> CONTRACT=<contract_address>
-  ```
-
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `EID`: Event ID or other identifier.
-  - `CONTRACT`: Contract address to fetch information from.
-
----
-
-### `run-bridge-token`
-
-Bridges tokens from one chain to another.
-
-- **Usage**:
-
-  ```bash
-  make bridge-general RPC_URL=<rpc_url> ACCOUNT_NAME=<account> CHAIN_ID=<chain_id> CONTRACT=<contract_address>
-  ```
-
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `CHAIN_ID`: Chain ID of the destination chain.
-  - `CONTRACT`: Contract address of the bridge.
-
----
-
-### `run-set-libraries`
-
-Sets library contracts on the bridge.
-
-- **Usage**:
-
-  ```bash
-  make set-libraries RPC_URL=<rpc_url> ACCOUNT_NAME=<account> OAPP=<oapp_address> ORIGIN_CHAIN_ID=<origin_chain_id> DESTINATION_CHAIN_ID=<destination_chain_id>
-  ```
-
-- **Parameters**:
-  - `RPC_URL`: RPC URL of the chain.
-  - `ACCOUNT_NAME`: The account you'll sign the transaction with.
-  - `OAPP`: Address of the application contract.
-  - `ORIGIN_CHAIN_ID`: Chain ID of the origin chain.
-  - `DESTINATION_CHAIN_ID`: Chain ID of the destination chain.
-
----
-
-## General Notes
-
-- The Makefile leverages environment variables to manage sensitive information like `ACCOUNT_PWD`, which can be stored in a `.env` file.
-- For security, make sure to add `.env` to `.gitignore` to avoid exposing sensitive information.
+- beam oft: [0x09895fbd548404f5D19774dB8Dc45E3484d858a0](https://subnets-test.avax.network/beam/address/0x09895fbd548404f5D19774dB8Dc45E3484d858a0)
+- sepolia oft adapter: [0x3E357dec7b680b11958e5aeCaEA9e3b036901e28](https://sepolia.etherscan.io/address/0x3E357dec7b680b11958e5aeCaEA9e3b036901e28)
+- wired: ✅
