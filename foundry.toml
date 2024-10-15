@@ -24,4 +24,9 @@ remappings = [
     'forge-std/=node_modules/@layerzerolabs/toolbox-foundry/lib/forge-std',
     '@layerzerolabs/=node_modules/@layerzerolabs/',
     '@openzeppelin/=node_modules/@openzeppelin/',
+    '@layerzerolabs/onft-evm/=node_modules/@layerzerolabs/onft-evm/',
+    '@layerzerolabs/oapp-evm/=node_modules/@layerzerolabs/oapp-evm/',
+    # '@layerzerolabs/lz-evm-protocol-v2/=lib/layerzero-v2/packages/layerzero-v2/evm/protocol',
 ]
+
+# node_modules/@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol
