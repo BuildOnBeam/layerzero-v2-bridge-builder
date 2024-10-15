@@ -45,6 +45,12 @@ _then run_
 make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the oft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> RPC_URL_B=<RPC url of chain whereyou deployed the oft adapter> CHAIN_ID_B=<chain id b> PEER_A=<contract deployed on chain A>  PEER_B=<contract deployed on chain B>
 ```
 
+### E2E test
+
+```bash
+make test-bridge RPC_URL=<RPC of the chain where I want to initiate the bridge> ACCOUNT_NAME=<your account> CONTRACT=<the contract of the OFT or OFTAdapter> CHAIN_ID=<Chain id of the network>
+```
+
 </details>
 
 ---
@@ -67,6 +73,10 @@ _then run_
 ```bash
 make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> CHAIN_ID_A=<chain id a> ACCOUNT_NAME=<your account> RPC_URL_B=<RPC url of chain whereyou deployed the onft adapter> CHAIN_ID_B=<chain id b> PEER_A=<contract deployed on chain A>  PEER_B=<contract deployed on chain B>
 ```
+
+### E2E test
+
+> That is coming soon
 
 </details>
 
