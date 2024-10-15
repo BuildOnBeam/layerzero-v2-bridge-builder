@@ -1,0 +1,19 @@
+-include .env
+
+###########################################################
+############# 		BRIDGE TOKENS				###########
+###########################################################
+
+run-bridge-token:
+	@forge script $(BRIDGE_SCRIPT_PATH) \
+		--rpc-url $(RPC_URL) \
+		--broadcast \
+		--account ${ACCOUNT_NAME} \
+		--password $(ACCOUNT_PWD) \
+		--sig "$(BRIDGE_TOKEN_SIG)"  $(CHAIN_ID) $(CONTRACT) \
+		-vvvvvvv --legacy 
+	
+# make test-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0xD329EeBEeC589bc06B63669a9dFf5F39801e18E1 CHAIN_ID=13337
+test-bridge: 
+	$(MAKE) run-bridge-token RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=$(CONTRACT)
+

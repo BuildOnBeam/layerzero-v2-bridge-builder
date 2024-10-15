@@ -1,0 +1,20 @@
+-include .env
+
+###########################################################
+############# 		 SET LIBRARIES     	        ###########
+###########################################################
+
+run-set-libraries:
+	@forge script $(SET_LIBS_SCRIPT_PATH) \
+		--rpc-url $(RPC_URL) \
+		--broadcast \
+		--account ${ACCOUNT_NAME} \
+		--password $(ACCOUNT_PWD)
+		--sig "$(SET_LIBS_SIG)" $(OAPP) $(ORIGIN_CHAIN_ID)  $(DESTINATION_CHAIN_ID)  \
+		-vvvvvvv --legacy 
+
+
+# make set-libraries RPC_URL=https://ethereum-sepolia-rpc.publicnode.com  ACCOUNT_NAME=beam-test-1  OAPP=0xD329EeBEeC589bc06B63669a9dFf5F39801e18E1 ORIGIN_CHAIN_ID=11155111 DESTINATION_CHAIN_ID=13337
+set-libraries: 
+	$(MAKE) run-set-libraries RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} OAPP=${OAPP} ORIGIN_CHAIN_ID=${ORIGIN_CHAIN_ID} DESTINATION_CHAIN_ID=${DESTINATION_CHAIN_ID}
+	
