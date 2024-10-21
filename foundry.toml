@@ -26,6 +26,7 @@ remappings = [
     '@openzeppelin/=node_modules/@openzeppelin/',
     '@layerzerolabs/onft-evm/=node_modules/@layerzerolabs/onft-evm/',
     '@layerzerolabs/oapp-evm/=node_modules/@layerzerolabs/oapp-evm/',
+    '@layerzerolabs/toolbox-foundry/=node_modules/@layerzerolabs/toolbox-foundry/',
     # '@layerzerolabs/lz-evm-protocol-v2/=lib/layerzero-v2/packages/layerzero-v2/evm/protocol',
 ]
 

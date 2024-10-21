@@ -13,7 +13,26 @@ run-bridge-token:
 		--sig "$(BRIDGE_TOKEN_SIG)"  $(CHAIN_ID) $(CONTRACT) \
 		-vvvvvvv --legacy 
 	
-# make test-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0xD329EeBEeC589bc06B63669a9dFf5F39801e18E1 CHAIN_ID=13337
+# make test-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0xD329EeBEeC589bc06B63669a9dFf5F39801e18E1 CHAIN_ID=13337 
 test-bridge: 
 	$(MAKE) run-bridge-token RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=$(CONTRACT)
+
+
+
+###########################################################
+############# 		BRIDGE NATIVE TOKENS		###########
+###########################################################
+
+run-bridge-native-token:
+	@forge script $(BRIDGE_NATIVE_SCRIPT_PATH) \
+		--rpc-url $(RPC_URL) \
+		--broadcast \
+		--account ${ACCOUNT_NAME} \
+		--password $(ACCOUNT_PWD) \
+		--sig "$(BRIDGE_NATIVE_TOKEN_SIG)"  $(CHAIN_ID) $(CONTRACT) $(DEST_ADDRESS) \
+		-vvvvvvv --legacy 
+
+# make test-native-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0xD329EeBEeC589bc06B63669a9dFf5F39801e18E1 CHAIN_ID=13337 DEST_ADDRESS=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
+test-native-bridge: 
+	$(MAKE) run-bridge-native-token RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=$(CONTRACT) DEST_ADDRESS=$(DEST_ADDRESS)
 

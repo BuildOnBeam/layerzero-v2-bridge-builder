@@ -1,0 +1,57 @@
+-include .env
+
+
+
+###########################################################
+############# 		     DEPLOY BRIDGE	            #######
+###########################################################
+
+#  make deploy-oft-bridge-native RPC_URL_A=https://ethereum-sepolia-rpc.publicnode.com   CHAIN_ID_A=11155111  ACCOUNT_NAME=beam-test-1 DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 RPC_URL_B=https://build.onbeam.com/rpc/testnet CHAIN_ID_B=13337 
+deploy-oft-bridge-native:
+	$(MAKE) run-deploy-beam-oft-native \
+		RPC_URL=${RPC_URL_A} \
+		ACCOUNT_NAME=${ACCOUNT_NAME} \
+		CHAIN_ID=$(CHAIN_ID_A) \
+		DELEGATE=$(DELEGATE)
+	$(MAKE) run-deploy-beam-oft-adapter-native \
+		RPC_URL=${RPC_URL_B} \
+		ACCOUNT_NAME=${ACCOUNT_NAME} \
+		CHAIN_ID=$(CHAIN_ID_B) \
+		DELEGATE=$(DELEGATE) \
+
+
+###########################################################
+#######  RUNNING THE ABOVE COMMAND SHOULD BE ENOUGH    ####
+###########################################################
+
+
+
+###########################################################
+#####################  OTHER COMMANDS    ##################
+###########################################################
+
+run-deploy-beam-oft-native:
+	forge script $(DEPLOY_OFT_NATIVE_SCRIPT_PATH) \
+		--rpc-url $(RPC_URL) \
+		--broadcast \
+		--account ${ACCOUNT_NAME} \
+		--sig "$(DEPLOY_OFT_NATIVE_SCRIPT_SIG)" $(CHAIN_ID) $(DELEGATE) \
+		-vvvv --legacy  	
+
+deploy-beam-oft-native: 
+	$(MAKE) run-deploy-beam-oft-native RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=$(CHAIN_ID) DELEGATE=$(DELEGATE)
+	
+
+run-deploy-beam-oft-adapter-native:
+	@forge script $(DEPLOY_OFT_ADAPTER_NATIVE_SCRIPT_PATH) \
+		--rpc-url $(RPC_URL) \
+		--broadcast \
+		--account ${ACCOUNT_NAME} \
+		--sig "$(DEPLOY_OFT_ADAPTER_NATIVE_SCRIPT_SIG)" $(CHAIN_ID) $(DELEGATE) \
+		-vvvv --legacy 
+
+deploy-beam-oft-adapter-native: 
+	$(MAKE) run-deploy-beam-oft-adapter-native RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=$(CHAIN_ID) DELEGATE=$(DELEGATE)
+	
+
+

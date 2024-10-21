@@ -4,22 +4,28 @@
 SET_PEER_SCRIPT_PATH = lz-scripts/SetPeers.s.sol
 GET_INFO_SCRIPT_PATH = lz-scripts/GetInfos.s.sol
 BRIDGE_SCRIPT_PATH = lz-scripts/BridgeToken.s.sol
+BRIDGE_NATIVE_SCRIPT_PATH = lz-scripts/BridgeNative.s.sol
 DEPLOY_OFT_SCRIPT_PATH = deploy/foundry/ERC20/DeployBeamOFT.s.sol
 DEPLOY_OFT_ADAPTER_SCRIPT_PATH = deploy/foundry/ERC20/DeployBeamOFTAdapter.s.sol
 DEPLOY_ONFT_SCRIPT_PATH = deploy/foundry/ERC721/DeployBeamONFT.s.sol
 DEPLOY_ONFT_ADAPTER_SCRIPT_PATH = deploy/foundry/ERC721/DeployBeamONFTAdapter.s.sol
 SET_LIBS_SCRIPT_PATH = lz-scripts/SetLibraries.s.sol
+DEPLOY_OFT_ADAPTER_NATIVE_SCRIPT_PATH = deploy/foundry/native/DeployBeamOFTAdapterNative.s.sol
+DEPLOY_OFT_NATIVE_SCRIPT_PATH = deploy/foundry/native/DeployBeamOFTNative.s.sol
 
 # script signatures
 SET_PEER_SIG = runSetPeer(uint256,address,address)
 GET_INFOS_SIG = getInfos(address,uint32)
 BRIDGE_TOKEN_SIG = bridgeToken(uint256,address)
+BRIDGE_NATIVE_TOKEN_SIG = bridgeNativeToken(uint256,address,address)
 DEPLOY_OFT_SCRIPT_SIG = deployBeamOFT(string,string,uint256,address)
 DEPLOY_OFT_ADAPTER_SCRIPT_SIG = deployBeamOFTAdapter(uint256,address,address)
 DEPLOY_ONFT_SCRIPT_SIG = deployBeamONFT(string,string,uint256,address)
 DEPLOY_ONFT_ADAPTER_SCRIPT_SIG = deployBeamONFTAdapter(uint256,address,address)
 SET_LIBS_SIG = setLibraries(address,uint256,uint256)
 
+DEPLOY_OFT_NATIVE_SCRIPT_SIG = deployBeamOFTNative(uint256,address)
+DEPLOY_OFT_ADAPTER_NATIVE_SCRIPT_SIG = deployBeamOFTAdapterNative(uint256,address)
 
 
 ###########################################################
@@ -27,7 +33,7 @@ SET_LIBS_SIG = setLibraries(address,uint256,uint256)
 ###########################################################
 
 
-#  make wire-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0xF5e30876DB81A0BFee35048c0F69b53Fc1f30660  PEER_B=0x1b39C6BD162bfd0C1d8F8184fc2b4198a99ff56F
+#  make wire-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0xEbfdC39a4475B562F0a418EB61287dfe5D294314  PEER_B=0x900Cf0fdb0022d69e70808699daB82c5858B73B6
 wire-bridge:
 	$(MAKE) add-peer \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
