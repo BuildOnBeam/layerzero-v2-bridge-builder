@@ -3,15 +3,17 @@ pragma solidity ^0.8.0;
 
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {SendParam} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
-import {OFT} from "@layerzerolabs/oft-evm/contracts/OFT.sol";
+import {BaseBeamOFT} from "../../contracts/ERC20/base/BaseBeamOFT.sol";
 import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 
-contract OFTPermitMock is OFT, ERC20Permit {
-    constructor(string memory _name, string memory _symbol, address _lzEndpoint, address _delegate)
-        OFT(_name, _symbol, _lzEndpoint, _delegate)
-        ERC20Permit(_name)
-        Ownable(_delegate)
-    {}
+contract OFTPermitMock is BaseBeamOFT, ERC20Permit {
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _lzEndpoint,
+        address _delegate,
+        uint256 _feePercentage
+    ) BaseBeamOFT(_name, _symbol, _lzEndpoint, _delegate, _feePercentage) ERC20Permit(_name) {}
 
     function mint(address _to, uint256 _amount) public {
         _mint(_to, _amount);

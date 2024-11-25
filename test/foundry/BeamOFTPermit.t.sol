@@ -55,13 +55,15 @@ contract BeamOFTPermitTest is TestHelperOz5 {
 
         aOFTAdapter = BeamOFTAdapter(
             _deployOApp(
-                type(BeamOFTAdapter).creationCode, abi.encode(address(aToken), address(endpoints[aEid]), address(this))
+                type(BeamOFTAdapter).creationCode,
+                abi.encode(address(aToken), address(endpoints[aEid]), address(this), 0)
             )
         );
 
         bOFT = OFTPermitMock(
             _deployOApp(
-                type(OFTPermitMock).creationCode, abi.encode("Token", "TOKEN", address(endpoints[bEid]), address(this))
+                type(OFTPermitMock).creationCode,
+                abi.encode("Token", "TOKEN", address(endpoints[bEid]), address(this), 0)
             )
         );
 
@@ -188,6 +190,7 @@ contract BeamOFTPermitTest is TestHelperOz5 {
     /// helper function
     function _signPermit(address owner, address spender, uint256 value, uint256 deadline, uint256 nonce)
         internal
+        view
         returns (uint8, bytes32, bytes32)
     {
         bytes32 structHash = keccak256(

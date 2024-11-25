@@ -32,6 +32,12 @@ test-foundry-oft-adapter-permit:
 	@echo "testing oft permit"
 	@forge test --match-path test/foundry/BeamOFTPermit.t.sol --force $(VERBOSE)
 
+test-foundry-oft-fees:
+	@forge clean
+	@echo "testing oft permit"
+	@forge test --match-path test/foundry/BeamOFTFees.t.sol --force $(VERBOSE)
+
+
 coverage:
 	@forge clean
 	@echo "checking test coverage"
