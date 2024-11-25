@@ -15,7 +15,7 @@ import {BaseBeamOFTAdapter} from "./base/BaseBeamOFTAdapter.sol";
  * a pre/post balance check will need to be done to calculate the amountSentLD/amountReceivedLD.
  */
 contract BeamOFTAdapter is BaseBeamOFTAdapter {
-    constructor(address _token, address _lzEndpoint, address _delegate)
-        BaseBeamOFTAdapter(_token, _lzEndpoint, _delegate)
+    constructor(address _token, address _lzEndpoint, address _delegate, uint256 _feePercentage)
+        BaseBeamOFTAdapter(_token, _lzEndpoint, _delegate, _feePercentage)
     {}
 }

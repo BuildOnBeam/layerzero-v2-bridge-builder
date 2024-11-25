@@ -5,10 +5,21 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {OFT} from "@layerzerolabs/oft-evm/contracts/OFT.sol";
 
 contract BaseBeamOFT is OFT {
-    constructor(string memory _name, string memory _symbol, address _lzEndpoint, address _delegate)
-        OFT(_name, _symbol, _lzEndpoint, _delegate)
-        Ownable(_delegate)
-    {}
+    uint256 public s_feePercentage;
+    uint256 public constant PRECISION = 1e18;
+
+    /**
+     * @dev _feePercentage should be expressed with decimal notation, eg 1% would be 1e16
+     */
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        address _lzEndpoint,
+        address _delegate,
+        uint256 _feePercentage
+    ) OFT(_name, _symbol, _lzEndpoint, _delegate) Ownable(_delegate) {
+        s_feePercentage = _feePercentage;
+    }
 
     /**
      * @dev Internal function to mock the amount mutation from a OFT debit() operation.
@@ -29,9 +40,13 @@ contract BaseBeamOFT is OFT {
     {
         // @dev Remove the dust so nothing is lost on the conversion between chains with different decimals for the token.
         amountSentLD = _removeDust(_amountLD);
-        // @dev The amount to send is the same as amount received in the default implementation.
-        // todo set a percentage in the contract that will be deducted when sending tokens
-        amountReceivedLD = amountSentLD;
+
+        if (s_feePercentage > 0) {
+            uint256 calculatedFees = (amountSentLD * s_feePercentage) / PRECISION;
+            amountReceivedLD = amountSentLD - calculatedFees;
+        } else {
+            amountReceivedLD = amountSentLD;
+        }
 
         // @dev Check for slippage.
         if (amountReceivedLD < _minAmountLD) {
