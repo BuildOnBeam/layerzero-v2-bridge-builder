@@ -2,7 +2,8 @@
 pragma solidity ^0.8.20;
 
 // Mock imports
-import {BeamOFT} from "../../contracts/ERC20/BeamOFT.sol";
+
+import {OFTPermitMock} from "../mocks/OFTPermitMock.sol";
 import {BeamOFTAdapter} from "../../contracts/ERC20/BeamOFTAdapter.sol";
 import {ERC20Mock} from "../mocks/ERC20Mock.sol";
 import {OFTComposerMock} from "../mocks/OFTComposerMock.sol";
@@ -28,7 +29,7 @@ import "forge-std/console.sol";
 // DevTools imports
 import {TestHelperOz5} from "@layerzerolabs/test-devtools-evm-foundry/contracts/TestHelperOz5.sol";
 
-contract MyOFTAdapterTest is TestHelperOz5 {
+contract BeamOFTPermitTest is TestHelperOz5 {
     using OptionsBuilder for bytes;
 
     uint32 private aEid = 1;
@@ -36,10 +37,11 @@ contract MyOFTAdapterTest is TestHelperOz5 {
 
     ERC20Mock private aToken;
     BeamOFTAdapter private aOFTAdapter;
-    BeamOFT private bOFT;
-
-    address private userA = address(0x1);
-    address private userB = address(0x2);
+    OFTPermitMock private bOFT;
+    uint256 userAPk = 0x1;
+    uint256 userBPk = 0x2;
+    address private userA = vm.addr(userAPk);
+    address private userB = vm.addr(userBPk);
     uint256 private initialBalance = 100 ether;
 
     function setUp() public virtual override {
@@ -57,9 +59,9 @@ contract MyOFTAdapterTest is TestHelperOz5 {
             )
         );
 
-        bOFT = BeamOFT(
+        bOFT = OFTPermitMock(
             _deployOApp(
-                type(BeamOFT).creationCode, abi.encode("Token", "TOKEN", address(endpoints[bEid]), address(this))
+                type(OFTPermitMock).creationCode, abi.encode("Token", "TOKEN", address(endpoints[bEid]), address(this))
             )
         );
 
@@ -152,6 +154,57 @@ contract MyOFTAdapterTest is TestHelperOz5 {
         assertEq(composer.message(), composerMsg_);
         assertEq(composer.executor(), address(this));
         assertEq(composer.extraData(), composerMsg_); // default to setting the extraData to the message as well to test
+    }
+
+    function test_permit() public {
+        bOFT.mint(userA, initialBalance);
+        uint256 amountToPermit = 1 ether;
+        uint256 deadline = block.timestamp + 1 days;
+
+        // Generate a signature for permit
+        vm.prank(userA);
+        (uint8 v, bytes32 r, bytes32 s) = _signPermit(userA, userB, amountToPermit, deadline, 0); // Assuming nonce starts at 0
+
+        // Before permit
+        assertEq(aToken.allowance(userA, userB), 0);
+
+        // Call permit
+        vm.prank(userA);
+        bOFT.permit(userA, userB, amountToPermit, deadline, v, r, s);
+
+        // After permit, check allowance
+        assertEq(bOFT.allowance(userA, userB), amountToPermit);
+
+        // Transfer tokens using the permit method
+        uint256 balanceBefore = bOFT.balanceOf(userB);
+        vm.prank(userB);
+        require(bOFT.transferFrom(userA, userB, amountToPermit), "Transfer not successful");
+
+        // Check that the tokens have been transferred
+        assertEq(bOFT.balanceOf(userB), balanceBefore + amountToPermit);
+        assertEq(bOFT.nonces(userA), 1); // Check nonce increase
+    }
+
+    /// helper function
+    function _signPermit(address owner, address spender, uint256 value, uint256 deadline, uint256 nonce)
+        internal
+        returns (uint8, bytes32, bytes32)
+    {
+        bytes32 structHash = keccak256(
+            abi.encode(
+                keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
+                owner,
+                spender,
+                value,
+                nonce,
+                deadline
+            )
+        );
+
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", bOFT.DOMAIN_SEPARATOR(), structHash));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(userAPk, digest);
+        return (v, r, s);
     }
 
     // TODO import the rest of oft tests?
