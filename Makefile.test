@@ -1,7 +1,7 @@
 -include .env
 
 ###########################################################
-############# 		BRIDGE TOKENS				###########
+############# 		BRIDGE TOKENS	(E2E tests!)###########
 ###########################################################
 
 run-bridge-token:
@@ -17,3 +17,17 @@ run-bridge-token:
 test-bridge: 
 	$(MAKE) run-bridge-token RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=$(CONTRACT)
 
+
+###########################################################
+############# 	BRIDGE TOKENS	(unit tests!)    ##########
+###########################################################
+
+test-foundry-oft-adapter:
+	@forge clean
+	@echo "testing oft adapter"
+	@forge test --match-path test/foundry/BeamOFTAdapter.t.sol --force $(VERBOSE)
+
+coverage:
+	@forge clean
+	@echo "checking test coverage"
+	forge clean && forge coverage --via-ir --ir-minimum
