@@ -6,7 +6,7 @@ import {OAppCore} from "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol";
 import {OptionsBuilder} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 import {SendParam} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 import {MessagingFee, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
-import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
+import {BeamOFTAdapter} from "../contracts/ERC20/BeamOFTAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {LzConfig} from "../deploy/foundry/LzConfig.sol";
 
@@ -14,24 +14,30 @@ import {LzConfig} from "../deploy/foundry/LzConfig.sol";
 contract BridgeToken is Script {
     using OptionsBuilder for bytes;
 
+    // change this
+    address public destinationAddress = 0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87;
+
     function bridgeToken(uint256 destinationChainID, address oftOrAdapter) public {
-        address destinationAddress = 0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87;
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(destinationChainID);
         uint32 eid = lzContracts.eid;
-        OFTAdapter adapter = OFTAdapter(oftOrAdapter);
+        BeamOFTAdapter adapter = BeamOFTAdapter(oftOrAdapter);
 
         IERC20 tokenToBridge = IERC20(adapter.token());
-
-        uint256 tokensToSend = 1 ether;
+        uint256 precision = adapter.PRECISION();
+        uint256 feePercentage = adapter.s_feePercentage();
+        uint256 tokensToSendIncludingFees = 1 ether;
+        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / precision;
+        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
 
-        SendParam memory sendParam =
-            SendParam(eid, addressToBytes32(destinationAddress), tokensToSend, tokensToSend, options, "", "");
+        SendParam memory sendParam = SendParam(
+            eid, addressToBytes32(destinationAddress), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", ""
+        );
         MessagingFee memory fee = adapter.quoteSend(sendParam, false);
 
         vm.startBroadcast();
-        tokenToBridge.approve(address(adapter), tokensToSend);
+        tokenToBridge.approve(address(adapter), tokensToSendIncludingFees);
         adapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
 
         vm.stopBroadcast();

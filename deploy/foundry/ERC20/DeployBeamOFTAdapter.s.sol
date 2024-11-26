@@ -16,13 +16,13 @@ contract DeployBeamOFTAdapter is Script {
      * @param delegate the owner of the contract
      * @param token existing ERC20 token to wrap
      */
-    function deployBeamOFTAdapter(uint256 chainID, address delegate, address token) external {
+    function deployBeamOFTAdapter(uint256 chainID, address delegate, address token, uint256 percentage) external {
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(chainID);
         address ENDPOINT_V2_ADDRESS = lzContracts.endpointV2;
 
         vm.startBroadcast();
-        BeamOFTAdapter oftAdapter = new BeamOFTAdapter(token, ENDPOINT_V2_ADDRESS, delegate);
+        BeamOFTAdapter oftAdapter = new BeamOFTAdapter(token, ENDPOINT_V2_ADDRESS, delegate, percentage);
         vm.stopBroadcast();
         console2.log("Deployed contract at address:", address(oftAdapter));
     }

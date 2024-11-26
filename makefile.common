@@ -14,8 +14,8 @@ SET_LIBS_SCRIPT_PATH = lz-scripts/SetLibraries.s.sol
 SET_PEER_SIG = runSetPeer(uint256,address,address)
 GET_INFOS_SIG = getInfos(address,uint32)
 BRIDGE_TOKEN_SIG = bridgeToken(uint256,address)
-DEPLOY_OFT_SCRIPT_SIG = deployBeamOFT(string,string,uint256,address)
-DEPLOY_OFT_ADAPTER_SCRIPT_SIG = deployBeamOFTAdapter(uint256,address,address)
+DEPLOY_OFT_SCRIPT_SIG = deployBeamOFT(string,string,uint256,address,uint256,bool)
+DEPLOY_OFT_ADAPTER_SCRIPT_SIG = deployBeamOFTAdapter(uint256,address,address,uint256)
 DEPLOY_ONFT_SCRIPT_SIG = deployBeamONFT(string,string,uint256,address)
 DEPLOY_ONFT_ADAPTER_SCRIPT_SIG = deployBeamONFTAdapter(uint256,address,address)
 SET_LIBS_SIG = setLibraries(address,uint256,uint256)
@@ -27,7 +27,7 @@ SET_LIBS_SIG = setLibraries(address,uint256,uint256)
 ###########################################################
 
 
-#  make wire-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0xF5e30876DB81A0BFee35048c0F69b53Fc1f30660  PEER_B=0x1b39C6BD162bfd0C1d8F8184fc2b4198a99ff56F
+#  make wire-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0x22D8346837BaF22Ade1502a66fa60b4810b2d2b5  PEER_B=0x9667d750C1A554C5D81E191a46C67991A923B841
 wire-bridge:
 	$(MAKE) add-peer \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
