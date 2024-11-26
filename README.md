@@ -12,7 +12,6 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 4. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
 5. [Deployed Examples](#deployed-examples)
 
-
 ---
 
 ## Install dependencies
@@ -34,6 +33,49 @@ cast wallet import <name of account> --interactive
 *** put your pwd***
 // now your pk is secure in a keystore
 ```
+
+## Using the CLI to deploy an ERC20 bridge\*\*
+
+### installation
+
+You need to have Python installed on your system and install the required dependencies. Here's how to do it:
+
+- **Install Python**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/) if it's not already installed.
+- **Install Dependencies**: Navigate to the directory containing your Python scripts and install the dependencies by running:
+
+`pip install -r requirements.txt`
+
+### Usage
+
+1. Print the command to deploy bridge
+
+```bash
+python3 deploy_oft_bridge.py
+```
+
+> After running this command, you'll have printed a `make` command to be executed, like this:
+> `make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=TESTEN SYMBOL=TTEN DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=10000000000000000 IS_PERMIT=false RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789`
+
+2. Execute the printed make command
+   eg:
+
+```bash
+`make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=TESTEN SYMBOL=TTEN DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=10000000000000000 IS_PERMIT=false RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789`
+```
+
+3. Print the command to wire the bridge
+
+```bash
+python3 wire_bridge_deployer.py
+```
+
+4. Execute the printed make command
+
+```bash
+make wire-bridge ACCOUNT_NAME=beam-test-1 RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0x22D8346837BaF22Ade1502a66fa60b4810b2d2b5 PEER_B=0x9667d750C1A554C5D81E191a46C67991A923B841
+```
+
+> At this point you should have succesfully deploy the bridge.
 
 ## Deploying an OFT Bridge (ERC20)
 
