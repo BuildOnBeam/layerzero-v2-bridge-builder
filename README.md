@@ -18,7 +18,9 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 To start, install the dependencies running `npm i`
 
-## Before starting
+## Before starting (IMPORTANT)
+
+### Deployer account and privkey security
 
 This tool DOES NOT USES .env FILES TO STORE PRIVATE KEYS because it's so dangerous.
 
@@ -33,6 +35,10 @@ cast wallet import <name of account> --interactive
 *** put your pwd***
 // now your pk is secure in a keystore
 ```
+
+### Decimals
+
+this bridge is configured to deploy tokens with 18 decimals. In the future we will add the possibility to deploy different kind of tokens.
 
 ## Using the CLI to deploy an ERC20 bridge\*\*
 
