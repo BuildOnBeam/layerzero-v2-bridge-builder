@@ -147,15 +147,15 @@ make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> 
 
 ### ERC20
 
-- beam oft: [0x87ceb22aC24FB14C4f3191C8DB974A0Be41e0aB8](https://subnets-test.avax.network/beam/address/0x87ceb22aC24FB14C4f3191C8DB974A0Be41e0aB8)
-- sepolia oft adapter: [0x40f76105e01fbCA5fDc9E8897E7B69Fa71550C9d](https://sepolia.etherscan.io/address/0x40f76105e01fbCA5fDc9E8897E7B69Fa71550C9d)
+- beam oft: [0x8310D1b3eDD1fdC579733b522e3315f0EE8f4Da4](https://subnets-test.avax.network/beam/address/0x8310D1b3eDD1fdC579733b522e3315f0EE8f4Da4)
+- sepolia oft adapter: [0xbab0169B7985F3f33b9e2d780Dd8f334E777aDE8](https://sepolia.etherscan.io/address/0xbab0169B7985F3f33b9e2d780Dd8f334E777aDE8)
 
 ## Coverage
 
 to run test coverage:
 
 ```bash
-make coverage
+make run-coverage
 ```
 
 current coverage:

@@ -21,8 +21,7 @@ def main():
     name = get_user_input("Enter the name of the token (e.g., BEAMLINK)","Test")
     symbol = get_user_input("Enter the symbol of the token (e.g., BMLINK)","TS")
     delegate = get_user_input("Enter the delegate address","0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87")
-    percentage = get_user_input("Enter the bridge fee percentage", "1000000")
-    is_permit = 'true' if get_user_input("Use permit functionality? (yes/no)", "no").lower() == 'yes' else 'false'
+    percentage = get_user_input("Enter the bridge fee percentage. Should be less than 1000000", "1000")
     rpc_url_b = get_user_input("Enter RPC URL for the chain where to deploy BeamOFTAdapter. It is the \"starting chain\" of the token to bridge","https://ethereum-sepolia-rpc.publicnode.com")
     chain_id_b = int(get_user_input("Enter Chain ID for the chain where to deploy BeamOFTAdapter. It is the \"starting chain\" of the token to bridge",11155111))
     token = get_user_input("Enter the address of the token to bridge","0x779877A7B0D9E8603169DdbD7836e478b4624789")
