@@ -15,12 +15,13 @@ def get_user_input(prompt, default=None):
 def main():
     # Collecting user inputs
     account_name = get_user_input("Enter the account name for deployment", "beam-test-1")
-    rpc_url_a = get_user_input("Enter RPC URL for the destination chain (usually Beam)", "https://build.onbeam.com/rpc/testnet")
-    chain_id_a = int(get_user_input("Enter Chain ID for the destination chain (usually Beam)", "13337"))
-    rpc_url_b =get_user_input("Enter RPC URL for the source chain (where the token exists)", "https://ethereum-sepolia-rpc.publicnode.com")
-    chain_id_b = int(get_user_input("Enter Chain ID for the source chain (where the token exists)", "11155111"))
-    peer_a = get_user_input("Enter the peer address for Chain A")
-    peer_b = get_user_input("Enter the peer address for Chain B")
+    
+    rpc_url_b =get_user_input("Enter RPC URL of the chain where you deployed the OFTAdapter", "https://ethereum-sepolia-rpc.publicnode.com")
+    chain_id_b = int(get_user_input("Enter Chain ID of the chain where you deployed the OFTAdapter", "11155111"))
+    rpc_url_a = get_user_input("Enter RPC URL of the chain where you deployed the OFT", "https://build.onbeam.com/rpc/testnet")
+    chain_id_a = int(get_user_input("Enter Chain ID of the chain where you deployed the OFT", "13337"))
+    peer_b = get_user_input("Enter the address of the OFTAdapter")
+    peer_a = get_user_input("Enter the address of the OFT")
 
     # Construct environment variables from user inputs
     env = {
