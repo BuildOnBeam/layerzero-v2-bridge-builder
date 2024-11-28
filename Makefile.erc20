@@ -15,7 +15,6 @@ deploy-oft-bridge:
 		CHAIN_ID=$(CHAIN_ID_A) \
 		DELEGATE=$(DELEGATE)
 		PERCENTAGE=$(PERCENTAGE)
-		IS_PERMIT=${IS_PERMIT}
 	$(MAKE) run-deploy-beam-oft-adapter \
 		RPC_URL=${RPC_URL_B} \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
@@ -40,7 +39,7 @@ run-deploy-beam-oft:
 		--rpc-url $(RPC_URL) \
 		--broadcast \
 		--account ${ACCOUNT_NAME} \
-		--sig "$(DEPLOY_OFT_SCRIPT_SIG)" $(NAME) $(SYMBOL) $(CHAIN_ID) $(DELEGATE) $(PERCENTAGE) $(IS_PERMIT)\
+		--sig "$(DEPLOY_OFT_SCRIPT_SIG)" $(NAME) $(SYMBOL) $(CHAIN_ID) $(DELEGATE) $(PERCENTAGE) \
 		-vvvv --legacy --verify --verifier sourcify		
 
 # make deploy-beam-oft RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 NAME=Test SYMBOL=TST CHAIN_ID=11155111 DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87

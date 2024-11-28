@@ -8,9 +8,11 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 1. [Install dependencies](#install-dependencies)
 2. [Before starting](#before-starting)
-3. [Deploying an OFT Bridge (ERC20)](#deploying-an-oft-bridge-erc20)
-4. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
-5. [Deployed Examples](#deployed-examples)
+3. [Using the CLI to deploy an ERC20 bridge](#using-the-cli-to-deploy-an-erc20-bridge)
+4. [Deploying an OFT Bridge (ERC20)](#deploying-an-oft-bridge-erc20)
+5. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
+6. [Deployed Examples](#deployed-examples)
+7. [Coverage](#coverage)
 
 ---
 
@@ -36,11 +38,7 @@ cast wallet import <name of account> --interactive
 // now your pk is secure in a keystore
 ```
 
-### Decimals
-
-this bridge is configured to deploy tokens with 18 decimals. In the future we will add the possibility to deploy different kind of tokens.
-
-## Using the CLI to deploy an ERC20 bridge\*\*
+## Using the CLI to deploy an ERC20 bridge
 
 ### installation
 
@@ -56,7 +54,7 @@ You need to have Python installed on your system and install the required depend
 1. Print the command to deploy bridge
 
 ```bash
-python3 deploy_oft_bridge.py
+python3 print_deploy_command.py
 ```
 
 > After running this command, you'll have printed a `make` command to be executed, like this:
@@ -72,7 +70,7 @@ python3 deploy_oft_bridge.py
 3. Print the command to wire the bridge
 
 ```bash
-python3 wire_bridge_deployer.py
+python3 print_wire_bridge_command.py
 ```
 
 4. Execute the printed make command
@@ -149,3 +147,19 @@ make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> 
 
 - beam oft: [0x09895fbd548404f5D19774dB8Dc45E3484d858a0](https://subnets-test.avax.network/beam/address/0x09895fbd548404f5D19774dB8Dc45E3484d858a0)
 - sepolia oft adapter: [0x3E357dec7b680b11958e5aeCaEA9e3b036901e28](https://sepolia.etherscan.io/address/0x3E357dec7b680b11958e5aeCaEA9e3b036901e28)
+
+## Coverage
+
+to run test coverage:
+
+```bash
+make coverage
+```
+
+current coverage:
+| File | % Lines | % Statements | % Branches | % Funcs |
+|-----------------------------------------|-----------------|-----------------|-----------------|---------------|
+| contracts/ERC20/BeamOFT.sol | 100.00% (14/14) | 100.00% (16/16) | 100.00% (5/5) | 100.00% (3/3) |
+| contracts/ERC20/BeamOFTAdapter.sol | 100.00% (14/14) | 100.00% (16/16) | 100.00% (5/5) | 100.00% (3/3) |
+| contracts/ERC20/base/BaseBeamBridge.sol | 100.00% (7/7) | 100.00% (8/8) | 100.00% (1/1) | 100.00% (3/3) |
+| Total | 100.00% (35/35) | 100.00% (40/40) | 100.00% (11/11) | 100.00% (9/9) |

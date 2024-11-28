@@ -9,12 +9,6 @@ optimizer_runs = 1  # Adjust the number of runs to fit your needs
 via_ir = true
 
 libs = [
-    # We provide a set of useful contract utilities
-    # in the lib directory of @layerzerolabs/toolbox-foundry:
-    # 
-    # - forge-std
-    # - ds-test
-    # - solidity-bytes-utils
     'node_modules/@layerzerolabs/toolbox-foundry/lib',
     'node_modules',
 ]
@@ -30,7 +24,12 @@ remappings = [
     '@openzeppelin/=node_modules/@openzeppelin/',
     '@layerzerolabs/onft-evm/=node_modules/@layerzerolabs/onft-evm/',
     '@layerzerolabs/oapp-evm/=node_modules/@layerzerolabs/oapp-evm/',
-    # '@layerzerolabs/lz-evm-protocol-v2/=lib/layerzero-v2/packages/layerzero-v2/evm/protocol',
 ]
 
-# node_modules/@layerzerolabs/onft-evm/contracts/onft721/ONFT721Core.sol
+[fuzz]
+runs = 5000
+max_test_rejects = 0
+show_logs = true
+
+
+
