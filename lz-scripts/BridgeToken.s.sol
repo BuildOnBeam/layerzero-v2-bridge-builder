@@ -9,15 +9,18 @@ import {MessagingFee, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/O
 import {BeamOFTAdapter} from "../contracts/ERC20/BeamOFTAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {LzConfig} from "../deploy/foundry/LzConfig.sol";
+import "forge-std/console.sol";
 
 // this script is for bridging from sepolia to holesky
 contract BridgeToken is Script {
     using OptionsBuilder for bytes;
 
-    // change this
-    address public destinationAddress = 0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87;
-
-    function bridgeToken(uint256 destinationChainID, address oftOrAdapter) public {
+    function bridgeToken(
+        uint256 destinationChainID,
+        address oftOrAdapter,
+        uint256 amountToBridge,
+        address destinationAddress
+    ) public {
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(destinationChainID);
         uint32 eid = lzContracts.eid;
@@ -25,10 +28,23 @@ contract BridgeToken is Script {
 
         IERC20 tokenToBridge = IERC20(adapter.token());
         uint256 precision = adapter.PRECISION();
+        console.log("precision");
+        console.log(precision);
         uint256 feePercentage = adapter.s_feePercentage();
-        uint256 tokensToSendIncludingFees = 0.1 ether;
+        console.log("feePercentage");
+        console.log(feePercentage);
+        uint256 tokensToSendIncludingFees = amountToBridge;
+        // 100000000000000000 * 1000000 / 1000000
+
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / precision;
+
+        console.log("expectedFee");
+        console.log(expectedFee);
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+
+        console.log("tokenToSendMinusFees");
+        console.log(tokenToSendMinusFees);
+
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
 
         SendParam memory sendParam = SendParam(
