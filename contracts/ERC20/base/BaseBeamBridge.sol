@@ -53,7 +53,7 @@ abstract contract BaseBeamBridge is Ownable {
      * @param _feePercentage The new fee percentage to set.
      */
     function setFeePercentage(uint256 _feePercentage) public onlyOwner {
-        if (_feePercentage > PRECISION) revert BaseBeamBridge__InvalidFeePercentage();
+        if (_feePercentage >= PRECISION) revert BaseBeamBridge__InvalidFeePercentage();
         s_feePercentage = _feePercentage;
         emit FeePercentageSet(_feePercentage);
     }
