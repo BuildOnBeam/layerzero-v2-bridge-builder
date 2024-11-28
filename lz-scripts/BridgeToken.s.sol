@@ -26,7 +26,7 @@ contract BridgeToken is Script {
         IERC20 tokenToBridge = IERC20(adapter.token());
         uint256 precision = adapter.PRECISION();
         uint256 feePercentage = adapter.s_feePercentage();
-        uint256 tokensToSendIncludingFees = 1 ether;
+        uint256 tokensToSendIncludingFees = 0.1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / precision;
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
