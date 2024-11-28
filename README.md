@@ -22,6 +22,8 @@ To start, install the dependencies running `npm i`
 
 ## Before starting (IMPORTANT)
 
+ERC721 are not ready yet. For now only ERC20 are ok to go
+
 ### Deployer account and privkey security
 
 This tool DOES NOT USES .env FILES TO STORE PRIVATE KEYS because it's so dangerous.
@@ -145,8 +147,8 @@ make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> 
 
 ### ERC20
 
-- beam oft: [0x09895fbd548404f5D19774dB8Dc45E3484d858a0](https://subnets-test.avax.network/beam/address/0x09895fbd548404f5D19774dB8Dc45E3484d858a0)
-- sepolia oft adapter: [0x3E357dec7b680b11958e5aeCaEA9e3b036901e28](https://sepolia.etherscan.io/address/0x3E357dec7b680b11958e5aeCaEA9e3b036901e28)
+- beam oft: [0x87ceb22aC24FB14C4f3191C8DB974A0Be41e0aB8](https://subnets-test.avax.network/beam/address/0x87ceb22aC24FB14C4f3191C8DB974A0Be41e0aB8)
+- sepolia oft adapter: [0x40f76105e01fbCA5fDc9E8897E7B69Fa71550C9d](https://sepolia.etherscan.io/address/0x40f76105e01fbCA5fDc9E8897E7B69Fa71550C9d)
 
 ## Coverage
 
