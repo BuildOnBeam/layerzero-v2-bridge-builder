@@ -36,7 +36,6 @@ def main():
         "SYMBOL": symbol,
         "DELEGATE": delegate,
         "PERCENTAGE": percentage,
-        "IS_PERMIT": str(is_permit),
         "RPC_URL_A": rpc_url_a,
         "CHAIN_ID_A": str(chain_id_a),
         "RPC_URL_B": rpc_url_b,
