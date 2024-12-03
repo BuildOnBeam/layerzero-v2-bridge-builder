@@ -40,6 +40,14 @@ cast wallet import <name of account> --interactive
 // now your pk is secure in a keystore
 ```
 
+**IMPORTANT:** Probabaly redundant to mention, but the password will be needed during the deployment scripts so don't forget/lose it!
+
+## Create the .env file
+
+Before you begin with calling the print scripts, create an .env file in the root of the project (see .env.example for reference).
+
+For the ETHERSCAN_API_KEY set the value to your own API Key. Get one from: https://etherscan.io/register
+
 ## Using the CLI to deploy an ERC20 bridge
 
 ### installation
