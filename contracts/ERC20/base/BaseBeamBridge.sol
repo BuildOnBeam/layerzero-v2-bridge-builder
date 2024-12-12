@@ -12,7 +12,7 @@ abstract contract BaseBeamBridge is Ownable {
     /// @dev The percentage of the fee charged on transfers, expressed in 1e6 precision.
     uint256 public s_feePercentage;
 
-    /// @dev Constant for precision in calculations, set to 1e18 for 18 decimal places.
+    /// @dev Constant for precision in calculations
     uint256 public constant PRECISION = 1e6;
 
     /// @dev Address where the fees collected are sent.
@@ -49,7 +49,7 @@ abstract contract BaseBeamBridge is Ownable {
 
     /**
      * @notice Updates the fee percentage charged on transactions.
-     * @dev Can only be called by the current owner. The percentage should be in 1e18 precision. eg 1% would be 1e16
+     * @dev Can only be called by the current owner. The percentage should be in 1e6 precision. eg 1% would be 1e4
      * @param _feePercentage The new fee percentage to set.
      */
     function setFeePercentage(uint256 _feePercentage) public onlyOwner {
