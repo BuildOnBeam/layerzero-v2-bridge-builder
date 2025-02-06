@@ -6,32 +6,54 @@ import {OAppCore} from "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol";
 import {OptionsBuilder} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 import {SendParam} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 import {MessagingFee, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
-import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
+import {BeamOFTAdapter} from "../contracts/ERC20/BeamOFTAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
 import {LzConfig} from "../deploy/foundry/LzConfig.sol";
+import "forge-std/console.sol";
 
 // this script is for bridging from sepolia to holesky
 contract BridgeToken is Script {
     using OptionsBuilder for bytes;
 
-    function bridgeToken(uint256 destinationChainID, address oftOrAdapter) public {
-        address destinationAddress = 0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87;
+    function bridgeToken(
+        uint256 destinationChainID,
+        address oftOrAdapter,
+        uint256 amountToBridge,
+        address destinationAddress
+    ) public {
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(destinationChainID);
         uint32 eid = lzContracts.eid;
-        OFTAdapter adapter = OFTAdapter(oftOrAdapter);
+        BeamOFTAdapter adapter = BeamOFTAdapter(oftOrAdapter);
 
         IERC20 tokenToBridge = IERC20(adapter.token());
+        uint256 precision = adapter.PRECISION();
+        console.log("precision");
+        console.log(precision);
+        uint256 feePercentage = adapter.s_feePercentage();
+        console.log("feePercentage");
+        console.log(feePercentage);
+        uint256 tokensToSendIncludingFees = amountToBridge;
+        // 100000000000000000 * 1000000 / 1000000
 
-        uint256 tokensToSend = 1 ether;
+        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / precision;
+
+        console.log("expectedFee");
+        console.log(expectedFee);
+        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+
+        console.log("tokenToSendMinusFees");
+        console.log(tokenToSendMinusFees);
+
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
 
-        SendParam memory sendParam =
-            SendParam(eid, addressToBytes32(destinationAddress), tokensToSend, tokensToSend, options, "", "");
+        SendParam memory sendParam = SendParam(
+            eid, addressToBytes32(destinationAddress), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", ""
+        );
         MessagingFee memory fee = adapter.quoteSend(sendParam, false);
 
         vm.startBroadcast();
-        tokenToBridge.approve(address(adapter), tokensToSend);
+        tokenToBridge.approve(address(adapter), tokensToSendIncludingFees);
         adapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
 
         vm.stopBroadcast();

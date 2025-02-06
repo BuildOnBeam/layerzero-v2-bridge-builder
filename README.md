@@ -8,10 +8,11 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 1. [Install dependencies](#install-dependencies)
 2. [Before starting](#before-starting)
-3. [Deploying an OFT Bridge (ERC20)](#deploying-an-oft-bridge-erc20)
-4. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
-5. [Deployed Examples](#deployed-examples)
-
+3. [Using the CLI to deploy an ERC20 bridge](#using-the-cli-to-deploy-an-erc20-bridge)
+4. [Deploying an OFT Bridge (ERC20)](#deploying-an-oft-bridge-erc20)
+5. [Deploying an ONFT Bridge (ERC721)](#deploying-an-onft-bridge-erc721)
+6. [Deployed Examples](#deployed-examples)
+7. [Coverage](#coverage)
 
 ---
 
@@ -19,7 +20,11 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 To start, install the dependencies running `npm i`
 
-## Before starting
+## Before starting (IMPORTANT)
+
+ERC721 are not ready yet. For now only ERC20 are ok to go
+
+### Deployer account and privkey security
 
 This tool DOES NOT USES .env FILES TO STORE PRIVATE KEYS because it's so dangerous.
 
@@ -34,6 +39,57 @@ cast wallet import <name of account> --interactive
 *** put your pwd***
 // now your pk is secure in a keystore
 ```
+
+**IMPORTANT:** Probabaly redundant to mention, but the password will be needed during the deployment scripts so don't forget/lose it!
+
+## Create the .env file
+
+Before you begin with calling the print scripts, create an .env file in the root of the project (see .env.example for reference).
+
+For the ETHERSCAN_API_KEY set the value to your own API Key. Get one from: https://etherscan.io/register
+
+## Using the CLI to deploy an ERC20 bridge
+
+### installation
+
+You need to have Python installed on your system and install the required dependencies. Here's how to do it:
+
+- **Install Python**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/) if it's not already installed.
+- **Install Dependencies**: Navigate to the directory containing your Python scripts and install the dependencies by running:
+
+`pip install -r requirements.txt`
+
+### Usage
+
+1. Print the command to deploy bridge
+
+```bash
+python3 print_deploy_command.py
+```
+
+> After running this command, you'll have printed a `make` command to be executed, like this:
+> `make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=TESTEN SYMBOL=TTEN DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=10000000000000000 IS_PERMIT=false RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789`
+
+2. Execute the printed make command
+   eg:
+
+```bash
+`make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=TESTEN SYMBOL=TTEN DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=10000000000000000 IS_PERMIT=false RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789`
+```
+
+3. Print the command to wire the bridge
+
+```bash
+python3 print_wire_bridge_command.py
+```
+
+4. Execute the printed make command
+
+```bash
+make wire-bridge ACCOUNT_NAME=beam-test-1 RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0x22D8346837BaF22Ade1502a66fa60b4810b2d2b5 PEER_B=0x9667d750C1A554C5D81E191a46C67991A923B841
+```
+
+> At this point you should have succesfully deploy the bridge.
 
 ## Deploying an OFT Bridge (ERC20)
 
@@ -99,5 +155,21 @@ make wire-bridge RPC_URL_A=<RPC url of chain where you deployed the onft token> 
 
 ### ERC20
 
-- beam oft: [0x09895fbd548404f5D19774dB8Dc45E3484d858a0](https://subnets-test.avax.network/beam/address/0x09895fbd548404f5D19774dB8Dc45E3484d858a0)
-- sepolia oft adapter: [0x3E357dec7b680b11958e5aeCaEA9e3b036901e28](https://sepolia.etherscan.io/address/0x3E357dec7b680b11958e5aeCaEA9e3b036901e28)
+- beam oft: [0x8310D1b3eDD1fdC579733b522e3315f0EE8f4Da4](https://subnets-test.avax.network/beam/address/0x8310D1b3eDD1fdC579733b522e3315f0EE8f4Da4)
+- sepolia oft adapter: [0xbab0169B7985F3f33b9e2d780Dd8f334E777aDE8](https://sepolia.etherscan.io/address/0xbab0169B7985F3f33b9e2d780Dd8f334E777aDE8)
+
+## Coverage
+
+to run test coverage:
+
+```bash
+make run-coverage
+```
+
+current coverage:
+| File | % Lines | % Statements | % Branches | % Funcs |
+|-----------------------------------------|-----------------|-----------------|-----------------|---------------|
+| contracts/ERC20/BeamOFT.sol | 100.00% (14/14) | 100.00% (16/16) | 100.00% (5/5) | 100.00% (3/3) |
+| contracts/ERC20/BeamOFTAdapter.sol | 100.00% (14/14) | 100.00% (16/16) | 100.00% (5/5) | 100.00% (3/3) |
+| contracts/ERC20/base/BaseBeamBridge.sol | 100.00% (7/7) | 100.00% (8/8) | 100.00% (1/1) | 100.00% (3/3) |
+| Total | 100.00% (35/35) | 100.00% (40/40) | 100.00% (11/11) | 100.00% (9/9) |

@@ -18,13 +18,19 @@ contract DeployBeamOFT is Script {
      * @param chainID chain id of the network to deploy the contract on
      * @param delegate the owner of the contract
      */
-    function deployBeamOFT(string memory name, string memory symbol, uint256 chainID, address delegate) external {
+    function deployBeamOFT(
+        string memory name,
+        string memory symbol,
+        uint256 chainID,
+        address delegate,
+        uint256 percentage
+    ) external {
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(chainID);
         address ENDPOINT_V2_ADDRESS = lzContracts.endpointV2;
-
+        BeamOFT oft;
         vm.startBroadcast();
-        BeamOFT oft = new BeamOFT(name, symbol, ENDPOINT_V2_ADDRESS, delegate);
+        oft = new BeamOFT(name, symbol, ENDPOINT_V2_ADDRESS, delegate, percentage);
         vm.stopBroadcast();
         console2.log("Deployed contract at address:", address(oft));
     }
