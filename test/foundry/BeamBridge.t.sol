@@ -132,6 +132,11 @@ contract BeamBridgeTest is TestHelperOz5 {
         aOFTAdapter.setFeePercentage(1e7);
     }
 
+    function test_RevertIf_feeReceiverIsZeroAddress() public {
+        vm.expectRevert(abi.encodeWithSelector(BaseBeamBridge.BaseBeamBridge__ZeroAddress.selector));
+        bOFT.setFeeReceiver(address(0));
+    }
+
     function test_send_adapter_to_oft() public {
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;

@@ -9,6 +9,8 @@ import { OFT } from "@layerzerolabs/oft-evm/contracts/OFT.sol";
  * @notice This is a base contract inherited by BeamOFT and BeamOFTAdapter to manage cross-chain token transfers.
  */
 abstract contract BaseBeamBridge is Ownable {
+    error BaseBeamBridge__InvalidFeePercentage();
+    error BaseBeamBridge__ZeroAddress();
     /// @dev The percentage of the fee charged on transfers, expressed in 1e6 precision.
     uint256 public s_feePercentage;
 
@@ -23,9 +25,6 @@ abstract contract BaseBeamBridge is Ownable {
 
     /// @notice Emitted when the fee percentage is updated.
     event FeePercentageSet(uint256 indexed);
-
-    /// @notice thrown when the fee percentage is more than the PRECISION.
-    error BaseBeamBridge__InvalidFeePercentage();
 
     /**
      * @dev Constructor for BaseBeamBridge.
