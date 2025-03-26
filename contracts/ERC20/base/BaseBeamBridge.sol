@@ -43,7 +43,7 @@ abstract contract BaseBeamBridge is Ownable {
      */
     function setFeeReceiver(address _feeReceiver) public onlyOwner {
         if (_feeReceiver == address(0)) {
-            revert();
+            revert BaseBeamBridge__ZeroAddress();
         }
         s_feeReceiver = _feeReceiver;
         emit FeeReceiverSet(_feeReceiver);
