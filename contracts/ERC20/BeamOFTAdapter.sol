@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
-
-import {BaseBeamBridge} from "./base/BaseBeamBridge.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { OFTAdapter } from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
+import { BaseBeamBridge } from "./base/BaseBeamBridge.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title BeamOFTAdapter
@@ -24,10 +23,12 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @param _delegate Address to delegate contract ownership.
      * @param _feePercentage The initial fee percentage to be charged on transactions. It should be in base 6: eg 1% would be 1e4
      */
-    constructor(address _token, address _lzEndpoint, address _delegate, uint256 _feePercentage)
-        BaseBeamBridge(_feePercentage, _delegate)
-        OFTAdapter(_token, _lzEndpoint, _delegate)
-    {}
+    constructor(
+        address _token,
+        address _lzEndpoint,
+        address _delegate,
+        uint256 _feePercentage
+    ) BaseBeamBridge(_feePercentage, _delegate) OFTAdapter(_token, _lzEndpoint, _delegate) {}
 
     /**
      * @notice Calculates the amount to send and receive considering custom fees.
@@ -37,13 +38,11 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @return amountSentLD The amount actually debited from the sender in local decimals.
      * @return amountReceivedLD The amount to be received on the remote chain after fees, in local decimals.
      */
-    function _debitView(uint256 _amountLD, uint256 _minAmountLD, uint32 /*_dstEid*/ )
-        internal
-        view
-        virtual
-        override
-        returns (uint256 amountSentLD, uint256 amountReceivedLD)
-    {
+    function _debitView(
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 /*_dstEid*/
+    ) internal view virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         amountSentLD = _amountLD;
         if (s_feePercentage > 0) {
             uint256 calculatedFees = (_amountLD * s_feePercentage) / PRECISION;
@@ -70,12 +69,12 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @return amountSentLD The actual amount debited after fee application.
      * @return amountReceivedLD The amount to be received on the remote chain.
      */
-    function _debit(address _from, uint256 _amountLD, uint256 _minAmountLD, uint32 _dstEid)
-        internal
-        virtual
-        override
-        returns (uint256 amountSentLD, uint256 amountReceivedLD)
-    {
+    function _debit(
+        address _from,
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 _dstEid
+    ) internal virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
 
         // @dev Burn OFT and send custom fees to fee receiver if custom fees are enabled
