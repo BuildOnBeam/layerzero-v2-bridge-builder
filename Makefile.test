@@ -1,5 +1,15 @@
 -include .env
 
+test-all:
+	@forge clean
+	@forge test --match-path test/foundry/BeamBridge.t.sol --force $(VERBOSE)
+
+run-coverage:
+	@forge clean
+	@echo "checking test coverage"
+	forge clean && forge coverage --via-ir --ir-minimum
+
+
 ###########################################################
 ############# 		BRIDGE TOKENS	(E2E tests!)###########
 ###########################################################
@@ -23,24 +33,3 @@ test-bridge:
 ###########################################################
 ############# 	BRIDGE TOKENS	(unit tests!)    ##########
 ###########################################################
-
-test-foundry-oft-adapter:
-	@forge clean
-	@echo "testing oft adapter"
-	@forge test --match-path test/foundry/BeamOFTAdapter.t.sol --force $(VERBOSE)
-
-test-foundry-oft-adapter-permit:
-	@forge clean
-	@echo "testing oft permit"
-	@forge test --match-path test/foundry/BeamOFTPermit.t.sol --force $(VERBOSE)
-
-test-foundry-oft-fees:
-	@forge clean
-	@echo "testing oft permit"
-	@forge test --match-path test/foundry/BeamOFTFees.t.sol --force $(VERBOSE)
-
-
-run-coverage:
-	@forge clean
-	@echo "checking test coverage"
-	forge clean && forge coverage --via-ir --ir-minimum
