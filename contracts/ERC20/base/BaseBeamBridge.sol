@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.28;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {OFT} from "@layerzerolabs/oft-evm/contracts/OFT.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OFT } from "@layerzerolabs/oft-evm/contracts/OFT.sol";
 
 /**
  * @title BaseBeamBridge
@@ -43,6 +43,9 @@ abstract contract BaseBeamBridge is Ownable {
      * @param _feeReceiver The address to set as the new fee receiver.
      */
     function setFeeReceiver(address _feeReceiver) public onlyOwner {
+        if (_feeReceiver == address(0)) {
+            revert();
+        }
         s_feeReceiver = _feeReceiver;
         emit FeeReceiverSet(_feeReceiver);
     }
