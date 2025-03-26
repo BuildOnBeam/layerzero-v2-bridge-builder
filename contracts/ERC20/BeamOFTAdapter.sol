@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.22;
+pragma solidity ^0.8.28;
 
 import { OFTAdapter } from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
 import { BaseBeamBridge } from "./base/BaseBeamBridge.sol";

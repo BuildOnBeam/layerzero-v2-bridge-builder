@@ -1,37 +1,35 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.28;
 
 // Mock imports
 
-import {BeamOFTAdapter} from "../../contracts/ERC20/BeamOFTAdapter.sol";
-import {BaseBeamBridge} from "../../contracts/ERC20/base/BaseBeamBridge.sol";
-import {BeamOFT} from "../../contracts/ERC20/BeamOFT.sol";
-import {OFTMock} from "../mocks/OFTMock.sol";
-import {IOFT} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
+import { BeamOFTAdapter } from "../../contracts/ERC20/BeamOFTAdapter.sol";
+import { BaseBeamBridge } from "../../contracts/ERC20/base/BaseBeamBridge.sol";
+import { BeamOFT } from "../../contracts/ERC20/BeamOFT.sol";
+import { OFTMock } from "../mocks/OFTMock.sol";
+import { IOFT } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 
-import {ERC20Mock} from "../mocks/ERC20Mock.sol";
-import {OFTComposerMock} from "../mocks/OFTComposerMock.sol";
+import { ERC20Mock } from "../mocks/ERC20Mock.sol";
+import { OFTComposerMock } from "../mocks/OFTComposerMock.sol";
 
 // OApp imports
-import {
-    IOAppOptionsType3, EnforcedOptionParam
-} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol";
-import {OptionsBuilder} from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
+import { IOAppOptionsType3, EnforcedOptionParam } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OAppOptionsType3.sol";
+import { OptionsBuilder } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 
 // OFT imports
-import {IOFT, SendParam, OFTReceipt} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
-import {MessagingFee, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
-import {OFTMsgCodec} from "@layerzerolabs/oft-evm/contracts/libs/OFTMsgCodec.sol";
-import {OFTComposeMsgCodec} from "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol";
+import { IOFT, SendParam, OFTReceipt } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
+import { MessagingFee, MessagingReceipt } from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
+import { OFTMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTMsgCodec.sol";
+import { OFTComposeMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol";
 
 // OZ imports
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 // Forge imports
 import "forge-std/console.sol";
 
 // DevTools imports
-import {TestHelperOz5} from "@layerzerolabs/test-devtools-evm-foundry/contracts/TestHelperOz5.sol";
+import { TestHelperOz5 } from "@layerzerolabs/test-devtools-evm-foundry/contracts/TestHelperOz5.sol";
 
 contract BeamBridgeTest is TestHelperOz5 {
     using OptionsBuilder for bytes;
@@ -140,8 +138,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(bEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            bEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
 
         assertEq(aToken.balanceOf(userA), initialBalance);
@@ -152,7 +157,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
         vm.prank(userA);
-        aOFTAdapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
@@ -171,8 +176,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(bEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            bEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
 
         assertEq(aToken.balanceOf(userA), initialBalance);
@@ -183,7 +195,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
         vm.prank(userA);
-        aOFTAdapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
@@ -199,8 +211,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(aEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            aEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
@@ -210,7 +229,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
 
         vm.prank(userD);
-        bOFT.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        bOFT.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
@@ -229,8 +248,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(aEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            aEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
@@ -240,7 +266,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
 
         vm.prank(userD);
-        bOFT.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        bOFT.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
@@ -258,8 +284,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 minAmountLD = tokensToSendIncludingFees + 1;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(aEid, addressToBytes32(userB), tokensToSendIncludingFees, minAmountLD, options, "", "");
+        SendParam memory sendParam = SendParam(
+            aEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            minAmountLD,
+            options,
+            "",
+            ""
+        );
         vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, tokenToSendMinusFees, minAmountLD));
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
     }
@@ -271,8 +304,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         // that should cause the slippage control to activate
         uint256 minAmountLD = tokensToSendIncludingFees + 1;
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(bEid, addressToBytes32(userB), tokensToSendIncludingFees, minAmountLD, options, "", "");
+        SendParam memory sendParam = SendParam(
+            bEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            minAmountLD,
+            options,
+            "",
+            ""
+        );
 
         vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, tokenToSendMinusFees, minAmountLD));
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
@@ -287,8 +327,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(aEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            aEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
@@ -298,7 +345,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
 
         vm.prank(userD);
-        bOFT.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        bOFT.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
@@ -314,8 +361,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(bEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            bEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
 
         assertEq(aToken.balanceOf(userA), initialBalance);
@@ -326,7 +380,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
         vm.prank(userA);
-        aOFTAdapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
@@ -342,8 +396,10 @@ contract BeamBridgeTest is TestHelperOz5 {
 
         OFTComposerMock composer = new OFTComposerMock();
 
-        bytes memory options =
-            OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0).addExecutorLzComposeOption(0, 500000, 0);
+        bytes memory options = OptionsBuilder
+            .newOptions()
+            .addExecutorLzReceiveOption(200000, 0)
+            .addExecutorLzComposeOption(0, 500000, 0);
         bytes memory composeMsg = hex"1234";
         SendParam memory sendParam = SendParam(
             bEid,
@@ -364,8 +420,11 @@ contract BeamBridgeTest is TestHelperOz5 {
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
         vm.prank(userA);
-        (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) =
-            aOFTAdapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) = aOFTAdapter.send{ value: fee.nativeFee }(
+            sendParam,
+            fee,
+            payable(address(this))
+        );
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         // lzCompose params
@@ -375,7 +434,10 @@ contract BeamBridgeTest is TestHelperOz5 {
         bytes32 guid_ = msgReceipt.guid;
         address to_ = address(composer);
         bytes memory composerMsg_ = OFTComposeMsgCodec.encode(
-            msgReceipt.nonce, aEid, oftReceipt.amountReceivedLD, abi.encodePacked(addressToBytes32(userA), composeMsg)
+            msgReceipt.nonce,
+            aEid,
+            oftReceipt.amountReceivedLD,
+            abi.encodePacked(addressToBytes32(userA), composeMsg)
         );
         this.lzCompose(dstEid_, from_, options_, guid_, to_, composerMsg_);
 
@@ -421,11 +483,13 @@ contract BeamBridgeTest is TestHelperOz5 {
     }
 
     /// helper function
-    function _signPermit(address owner, address spender, uint256 value, uint256 deadline, uint256 nonce)
-        internal
-        view
-        returns (uint8, bytes32, bytes32)
-    {
+    function _signPermit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint256 nonce
+    ) internal view returns (uint8, bytes32, bytes32) {
         bytes32 structHash = keccak256(
             abi.encode(
                 keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"),
@@ -450,15 +514,22 @@ contract BeamBridgeTest is TestHelperOz5 {
         uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        SendParam memory sendParam =
-            SendParam(bEid, addressToBytes32(userB), tokensToSendIncludingFees, tokenToSendMinusFees, options, "", "");
+        SendParam memory sendParam = SendParam(
+            bEid,
+            addressToBytes32(userB),
+            tokensToSendIncludingFees,
+            tokenToSendMinusFees,
+            options,
+            "",
+            ""
+        );
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
 
         vm.prank(userA);
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
         vm.prank(userA);
-        aOFTAdapter.send{value: fee.nativeFee}(sendParam, fee, payable(address(this)));
+        aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
     }
 }
