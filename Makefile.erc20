@@ -40,7 +40,7 @@ run-deploy-beam-oft:
 		--broadcast \
 		--account ${ACCOUNT_NAME} \
 		--sig "$(DEPLOY_OFT_SCRIPT_SIG)" $(NAME) $(SYMBOL) $(CHAIN_ID) $(DELEGATE) $(PERCENTAGE) \
-		-vvvv --legacy --verify --verifier sourcify		
+		-vvvv --verify --verifier sourcify		
 
 # make deploy-beam-oft RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 NAME=Test SYMBOL=TST CHAIN_ID=11155111 DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
 deploy-beam-oft: 

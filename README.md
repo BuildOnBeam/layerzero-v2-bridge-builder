@@ -57,7 +57,7 @@ You need to have Python installed on your system and install the required depend
 - **Install Python**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/) if it's not already installed.
 - **Install Dependencies**: Navigate to the directory containing your Python scripts and install the dependencies by running:
 
-`pip install -r requirements.txt`
+`cd cli && pip install -r requirements.txt`
 
 ### Usage
 
