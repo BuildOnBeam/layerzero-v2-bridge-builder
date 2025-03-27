@@ -73,7 +73,6 @@ make run-coverage # run coverage
 - **custom fees Receiver**: It could be a treasury multisig. Fees can be optionally set.
 - **Precision**: Fee calculations may lose precision for small amounts due to integer division.
 
-## Testnet Examples
-[soon]
+
 
 
