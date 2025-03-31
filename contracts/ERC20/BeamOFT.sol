@@ -51,8 +51,8 @@ contract BeamOFT is BaseBeamBridge, OFT, ERC20Permit, ERC20Burnable {
 
             amountReceivedLD = _removeDust(_amountLD - calculatedFees);
         } else {
-            amountReceivedLD = _amountLD;
             amountSentLD = _removeDust(_amountLD);
+            amountReceivedLD = amountSentLD;
         }
 
         // @dev Check for slippage.

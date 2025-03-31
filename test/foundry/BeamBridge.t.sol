@@ -7,7 +7,7 @@ import { BeamOFTAdapter } from "../../contracts/ERC20/BeamOFTAdapter.sol";
 import { BaseBeamBridge } from "../../contracts/ERC20/base/BaseBeamBridge.sol";
 import { BeamOFT } from "../../contracts/ERC20/BeamOFT.sol";
 import { OFTMock } from "../mocks/OFTMock.sol";
-import { IOFT } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
+import { IOFT, OFTLimit, OFTFeeDetail, OFTReceipt, SendParam } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 
 import { ERC20Mock } from "../mocks/ERC20Mock.sol";
 import { OFTComposerMock } from "../mocks/OFTComposerMock.sol";
@@ -17,7 +17,6 @@ import { IOAppOptionsType3, EnforcedOptionParam } from "@layerzerolabs/oapp-evm/
 import { OptionsBuilder } from "@layerzerolabs/oapp-evm/contracts/oapp/libs/OptionsBuilder.sol";
 
 // OFT imports
-import { IOFT, SendParam, OFTReceipt } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 import { MessagingFee, MessagingReceipt } from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
 import { OFTMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTMsgCodec.sol";
 import { OFTComposeMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol";
@@ -536,5 +535,29 @@ contract BeamBridgeTest is TestHelperOz5 {
         vm.prank(userA);
         aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
+    }
+
+    function test_RevertIf_receiveLessThanMinAmount() public {
+        bOFT.setFeePercentage(0);
+        oftAdapterToOft();
+        uint256 tokensToSend = 1.9e12;
+        uint256 minTokensToReceive = tokensToSend;
+        uint256 initBalTarget = aToken.balanceOf(userD);
+
+        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
+        SendParam memory sendParam = SendParam(
+            aEid,
+            addressToBytes32(userD),
+            tokensToSend,
+            minTokensToReceive,
+            options,
+            "",
+            ""
+        );
+
+        uint256 minAmountShouldBe = (minTokensToReceive / bOFT.decimalConversionRate()) * bOFT.decimalConversionRate();
+
+        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, minAmountShouldBe, minTokensToReceive));
+        MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
     }
 }
