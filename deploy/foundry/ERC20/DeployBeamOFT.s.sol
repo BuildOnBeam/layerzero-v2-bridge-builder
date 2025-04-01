@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {Script, console2} from "forge-std/Script.sol";
-import {BeamOFT} from "../../../contracts/ERC20/BeamOFT.sol";
-import {LzConfig} from "../LzConfig.sol";
+import { Script, console2 } from "forge-std/Script.sol";
+import { BeamOFT } from "../../../contracts/ERC20/BeamOFT.sol";
+import { LzConfig } from "../LzConfig.sol";
 
 /**
  * @notice This script deploy an OFT with the correct endpoint address
@@ -23,14 +23,15 @@ contract DeployBeamOFT is Script {
         string memory symbol,
         uint256 chainID,
         address delegate,
-        uint256 percentage
+        uint256 percentage,
+        uint8 shareDecimals
     ) external {
         LzConfig lzConfig = new LzConfig();
         LzConfig.LzContracts memory lzContracts = lzConfig.getLzContracts(chainID);
         address ENDPOINT_V2_ADDRESS = lzContracts.endpointV2;
         BeamOFT oft;
         vm.startBroadcast();
-        oft = new BeamOFT(name, symbol, ENDPOINT_V2_ADDRESS, delegate, percentage);
+        oft = new BeamOFT(name, symbol, ENDPOINT_V2_ADDRESS, delegate, percentage, shareDecimals);
         vm.stopBroadcast();
         console2.log("Deployed contract at address:", address(oft));
     }
