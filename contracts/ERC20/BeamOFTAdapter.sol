@@ -92,7 +92,7 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
             innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
             innerToken.safeTransferFrom(_from, address(this), amountSentLD - customFee);
         } else {
-            innerToken.safeTransferFrom(_from, address(this), amountReceivedLD);
+            innerToken.safeTransferFrom(_from, address(this), amountSentLD);
         }
     }
 }
