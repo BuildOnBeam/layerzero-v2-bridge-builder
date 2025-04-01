@@ -23,14 +23,27 @@ contract BeamOFT is BaseBeamBridge, OFT, ERC20Permit, ERC20Burnable {
      * @param _lzEndpoint The LayerZero endpoint for cross-chain communication.
      * @param _delegate Address to delegate contract ownership.
      * @param _feePercentage The initial fee percentage to be charged on transactions.
+     * @param _shareDecimals see OFTCore
      */
     constructor(
         string memory _name,
         string memory _symbol,
         address _lzEndpoint,
         address _delegate,
-        uint256 _feePercentage
-    ) OFT(_name, _symbol, _lzEndpoint, _delegate) BaseBeamBridge(_feePercentage, _delegate) ERC20Permit(_name) {}
+        uint256 _feePercentage,
+        uint8 _shareDecimals
+    )
+        BaseBeamBridge(_feePercentage, _delegate, _shareDecimals)
+        OFT(_name, _symbol, _lzEndpoint, _delegate)
+        ERC20Permit(_name)
+    {}
+
+    /**
+    @dev override OFTCore
+     */
+    function sharedDecimals() public view override returns (uint8) {
+        return s_shareDecimals;
+    }
 
     /**
      * @notice override _debitView on {OFT}

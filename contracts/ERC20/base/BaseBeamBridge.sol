@@ -20,6 +20,9 @@ abstract contract BaseBeamBridge is Ownable {
     /// @dev Address where the fees collected are sent.
     address public s_feeReceiver;
 
+    /// @dev see OFTCore.
+    uint8 public immutable s_shareDecimals;
+
     /// @notice Emitted when the fee receiver address is set.
     event FeeReceiverSet(address indexed);
 
@@ -31,9 +34,10 @@ abstract contract BaseBeamBridge is Ownable {
      * @param _feePercentage Initial fee percentage for transactions, should be expressed with 1e18 precision. eg 1% would be 1e16
      * @param _delegate The address being delegated as the owner of this contract.
      */
-    constructor(uint256 _feePercentage, address _delegate) Ownable(_delegate) {
+    constructor(uint256 _feePercentage, address _delegate, uint8 _shareDecimals) Ownable(_delegate) {
         setFeePercentage(_feePercentage);
         setFeeReceiver(msg.sender);
+        s_shareDecimals = _shareDecimals;
     }
 
     /**

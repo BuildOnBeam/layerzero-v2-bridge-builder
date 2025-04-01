@@ -2,13 +2,11 @@
 pragma solidity ^0.8.28;
 
 // Mock imports
-
 import { BeamOFTAdapter } from "../../contracts/ERC20/BeamOFTAdapter.sol";
 import { BaseBeamBridge } from "../../contracts/ERC20/base/BaseBeamBridge.sol";
 import { BeamOFT } from "../../contracts/ERC20/BeamOFT.sol";
 import { OFTMock } from "../mocks/OFTMock.sol";
 import { IOFT, OFTLimit, OFTFeeDetail, OFTReceipt, SendParam } from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
-
 import { ERC20Mock } from "../mocks/ERC20Mock.sol";
 import { OFTComposerMock } from "../mocks/OFTComposerMock.sol";
 
@@ -25,7 +23,7 @@ import { OFTComposeMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTCom
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 // Forge imports
-import "forge-std/console.sol";
+import "forge-std/console2.sol";
 
 // DevTools imports
 import { TestHelperOz5 } from "@layerzerolabs/test-devtools-evm-foundry/contracts/TestHelperOz5.sol";
@@ -48,8 +46,9 @@ contract BeamBridgeTest is TestHelperOz5 {
     address private userFeeReceiver = vm.addr(userCPk);
     address private userD = vm.addr(userDPk);
     uint256 private initialBalance = 100 ether;
-    uint256 feePercentage = 5e4; //5%
+    uint256 feePercentage = 5e4; // 5%
     uint256 public constant PRECISION = 1e6;
+    uint8 public constant DEFAULT_SHARED_DECIMALS = 6;
 
     function setUp() public virtual override {
         vm.deal(userA, 1000 ether);
@@ -64,14 +63,27 @@ contract BeamBridgeTest is TestHelperOz5 {
         aOFTAdapter = BeamOFTAdapter(
             _deployOApp(
                 type(BeamOFTAdapter).creationCode,
-                abi.encode(address(aToken), address(endpoints[aEid]), address(this), feePercentage)
+                abi.encode(
+                    address(aToken),
+                    address(endpoints[aEid]),
+                    address(this),
+                    feePercentage,
+                    DEFAULT_SHARED_DECIMALS
+                )
             )
         );
 
         bOFT = OFTMock(
             _deployOApp(
                 type(OFTMock).creationCode,
-                abi.encode("Token", "TOKEN", address(endpoints[bEid]), address(this), feePercentage)
+                abi.encode(
+                    "Token",
+                    "TOKEN",
+                    address(endpoints[bEid]),
+                    address(this),
+                    feePercentage,
+                    DEFAULT_SHARED_DECIMALS
+                )
             )
         );
         vm.label(address(bOFT), "bOFT");
@@ -101,6 +113,11 @@ contract BeamBridgeTest is TestHelperOz5 {
         vm.label(userD, "userD");
         vm.label(userFeeReceiver, "userFeeReceiver");
         vm.label(address(aToken), "aToken");
+    }
+
+    function removeDust(uint256 _amountLD) public view returns (uint256 amountLD) {
+        uint256 decimalConversionRate = 10 ** (aToken.decimals() - aOFTAdapter.sharedDecimals());
+        return (_amountLD / decimalConversionRate) * decimalConversionRate;
     }
 
     function test_constructor() public {
@@ -138,25 +155,31 @@ contract BeamBridgeTest is TestHelperOz5 {
 
     function test_send_adapter_to_oft() public {
         uint256 tokensToSendIncludingFees = 1 ether;
-        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION; // 0.05 ether
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee; // 0.95 ether
+
+        // Calculate minAmount considering dust removal
+        uint256 minAmount = removeDust(amountAfterFees);
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             bEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
         );
         MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
 
+        // Initial balance checks
         assertEq(aToken.balanceOf(userA), initialBalance);
         assertEq(aToken.balanceOf(address(aOFTAdapter)), 0);
         assertEq(bOFT.balanceOf(userB), 0);
+        assertEq(aToken.balanceOf(userFeeReceiver), 0); // Ensure initial fee receiver balance is 0
 
+        // Approve and send
         vm.prank(userA);
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
 
@@ -164,27 +187,30 @@ contract BeamBridgeTest is TestHelperOz5 {
         aOFTAdapter.send{ value: fee.nativeFee }(sendParam, fee, payable(address(this)));
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
-        assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(aOFTAdapter)), tokenToSendMinusFees);
-        assertEq(bOFT.balanceOf(userB), tokenToSendMinusFees);
-        assertEq(aToken.balanceOf(userFeeReceiver), expectedFee);
+        // Post-send balance checks
+        assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees); // UserA loses 1 ether
+        assertEq(aToken.balanceOf(address(aOFTAdapter)), minAmount); // confirm tokens are locked
+        assertEq(bOFT.balanceOf(userB), minAmount); // UserB receives amount after fees
+        assertEq(aToken.balanceOf(userFeeReceiver), expectedFee); // Fee receiver gets 0.05 ether
     }
 
     function testFuzz_send_adapter_to_oft(uint256 randomFeePct) public {
-        // testing fees from 0,1 % till 30%
-        randomFeePct = bound(randomFeePct, 1e3, 1e5);
+        // Bound fees from 0.1% to 30%
+        randomFeePct = bound(randomFeePct, 1e3, 3e5);
         aOFTAdapter.setFeePercentage(randomFeePct);
         uint256 newFeePercentage = aOFTAdapter.s_feePercentage();
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * newFeePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = removeDust(amountAfterFees);
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             bEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -194,6 +220,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         assertEq(aToken.balanceOf(userA), initialBalance);
         assertEq(aToken.balanceOf(address(aOFTAdapter)), 0);
         assertEq(bOFT.balanceOf(userB), 0);
+        assertEq(aToken.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userA);
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
@@ -203,23 +230,26 @@ contract BeamBridgeTest is TestHelperOz5 {
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(aOFTAdapter)), tokenToSendMinusFees);
-        assertEq(bOFT.balanceOf(userB), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(address(aOFTAdapter)), minAmount);
+        assertEq(bOFT.balanceOf(userB), minAmount);
         assertEq(aToken.balanceOf(userFeeReceiver), expectedFee);
     }
 
     function test_send_oft_to_adapter() public {
-        oftAdapterToOft();
         uint256 tokensToSendIncludingFees = 1 ether;
-        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION; // 0.05 ether
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee; // 0.95 ether
+
+        uint256 minAmount = bOFT.removeDust(amountAfterFees);
+
+        aToken.mint(address(aOFTAdapter), minAmount); // mint tokens to aOFTAdapter to allow the correct transfer from bOFT
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             aEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -227,7 +257,8 @@ contract BeamBridgeTest is TestHelperOz5 {
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
-        assertEq(aToken.balanceOf(userD), 0);
+        assertEq(aToken.balanceOf(userB), 0);
+        assertEq(bOFT.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userD);
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
@@ -237,26 +268,28 @@ contract BeamBridgeTest is TestHelperOz5 {
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(userB)), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(userB), minAmount);
         assertEq(bOFT.balanceOf(userFeeReceiver), expectedFee);
     }
 
     function testFuzz_send_oft_to_adapter(uint256 randomFeePct) public {
-        oftAdapterToOft();
-        // testing fees from 0,1 % till 30%
-        randomFeePct = bound(randomFeePct, 1e15, 3e17);
-        bOFT.setFeePercentage(0);
+        // Bound fees from 0.1% to 30%
+        randomFeePct = bound(randomFeePct, 1e3, 3e5);
+        bOFT.setFeePercentage(randomFeePct);
         uint256 newFeePercentage = bOFT.s_feePercentage();
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * newFeePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = bOFT.removeDust(amountAfterFees);
+        aToken.mint(address(aOFTAdapter), minAmount); // mint tokens to aOFTAdapter to allow the correct transfer from bOFT
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             aEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -264,7 +297,8 @@ contract BeamBridgeTest is TestHelperOz5 {
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
-        assertEq(aToken.balanceOf(userD), 0);
+        assertEq(aToken.balanceOf(userB), 0);
+        assertEq(bOFT.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userD);
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
@@ -274,68 +308,67 @@ contract BeamBridgeTest is TestHelperOz5 {
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(userB)), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(userB), minAmount);
         assertEq(bOFT.balanceOf(userFeeReceiver), expectedFee);
     }
 
     function test_RevertIf_oft_SlippageExceeded() public {
-        oftAdapterToOft();
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
 
-        // that should cause the slippage control to activate
-        uint256 minAmountLD = tokensToSendIncludingFees + 1;
+        uint256 minAmount = bOFT.removeDust(amountAfterFees) + 1; // Exceed expected amount
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             aEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            minAmountLD,
+            minAmount,
             options,
             "",
             ""
         );
-        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, tokenToSendMinusFees, minAmountLD));
-        MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
+        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, amountAfterFees, minAmount));
+        bOFT.quoteSend(sendParam, false);
     }
 
     function test_RevertIf_oftAdapter_SlippageExceeded() public {
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
-        // that should cause the slippage control to activate
-        uint256 minAmountLD = tokensToSendIncludingFees + 1;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = removeDust(amountAfterFees) + 1; // Exceed expected amount
+
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             bEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            minAmountLD,
+            minAmount,
             options,
             "",
             ""
         );
-
-        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, tokenToSendMinusFees, minAmountLD));
-        MessagingFee memory fee = aOFTAdapter.quoteSend(sendParam, false);
+        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, amountAfterFees, minAmount));
+        aOFTAdapter.quoteSend(sendParam, false);
     }
 
     function test_send_oft_to_adapter_no_fees() public {
         bOFT.setFeePercentage(0);
-        uint256 newFeePercentage = bOFT.s_feePercentage();
-        oftAdapterToOft();
         uint256 tokensToSendIncludingFees = 1 ether;
-        uint256 expectedFee = (tokensToSendIncludingFees * newFeePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 expectedFee = 0; // No fees
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = bOFT.removeDust(amountAfterFees);
+        aToken.mint(address(aOFTAdapter), minAmount); // mint tokens to aOFTAdapter to allow the correct transfer from bOFT
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             aEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -343,7 +376,8 @@ contract BeamBridgeTest is TestHelperOz5 {
         MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
 
         assertEq(bOFT.balanceOf(userD), initialBalance);
-        assertEq(aToken.balanceOf(userD), 0);
+        assertEq(aToken.balanceOf(userB), 0);
+        assertEq(bOFT.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userD);
         bOFT.approve(address(bOFT), tokensToSendIncludingFees);
@@ -353,23 +387,24 @@ contract BeamBridgeTest is TestHelperOz5 {
         verifyPackets(aEid, addressToBytes32(address(aOFTAdapter)));
 
         assertEq(bOFT.balanceOf(userD), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(userB)), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(userB), minAmount);
         assertEq(bOFT.balanceOf(userFeeReceiver), expectedFee);
     }
 
     function test_send_adapter_to_oft_no_fees() public {
         aOFTAdapter.setFeePercentage(0);
-        uint256 newFeePercentage = aOFTAdapter.s_feePercentage();
         uint256 tokensToSendIncludingFees = 1 ether;
-        uint256 expectedFee = (tokensToSendIncludingFees * newFeePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 expectedFee = 0; // No fees
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = removeDust(amountAfterFees);
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             bEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -379,6 +414,7 @@ contract BeamBridgeTest is TestHelperOz5 {
         assertEq(aToken.balanceOf(userA), initialBalance);
         assertEq(aToken.balanceOf(address(aOFTAdapter)), 0);
         assertEq(bOFT.balanceOf(userB), 0);
+        assertEq(aToken.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userA);
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
@@ -388,17 +424,19 @@ contract BeamBridgeTest is TestHelperOz5 {
         verifyPackets(bEid, addressToBytes32(address(bOFT)));
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(aOFTAdapter)), tokenToSendMinusFees);
-        assertEq(bOFT.balanceOf(userB), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(address(aOFTAdapter)), minAmount);
+        assertEq(bOFT.balanceOf(userB), minAmount);
         assertEq(aToken.balanceOf(userFeeReceiver), expectedFee);
     }
 
     function test_send_oft_adapter_compose_msg() public {
         uint256 tokensToSendIncludingFees = 1 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
 
         OFTComposerMock composer = new OFTComposerMock();
+
+        uint256 minAmount = removeDust(amountAfterFees);
 
         bytes memory options = OptionsBuilder
             .newOptions()
@@ -409,7 +447,7 @@ contract BeamBridgeTest is TestHelperOz5 {
             bEid,
             addressToBytes32(address(composer)),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             composeMsg,
             ""
@@ -418,7 +456,8 @@ contract BeamBridgeTest is TestHelperOz5 {
 
         assertEq(aToken.balanceOf(userA), initialBalance);
         assertEq(aToken.balanceOf(address(aOFTAdapter)), 0);
-        assertEq(bOFT.balanceOf(userB), 0);
+        assertEq(bOFT.balanceOf(address(composer)), 0);
+        assertEq(aToken.balanceOf(userFeeReceiver), 0);
 
         vm.prank(userA);
         aToken.approve(address(aOFTAdapter), tokensToSendIncludingFees);
@@ -446,15 +485,15 @@ contract BeamBridgeTest is TestHelperOz5 {
         this.lzCompose(dstEid_, from_, options_, guid_, to_, composerMsg_);
 
         assertEq(aToken.balanceOf(userA), initialBalance - tokensToSendIncludingFees);
-        assertEq(aToken.balanceOf(address(aOFTAdapter)), tokenToSendMinusFees);
-        assertEq(bOFT.balanceOf(address(composer)), tokenToSendMinusFees);
+        assertEq(aToken.balanceOf(address(aOFTAdapter)), minAmount);
+        assertEq(bOFT.balanceOf(address(composer)), minAmount);
         assertEq(aToken.balanceOf(userFeeReceiver), expectedFee);
 
         assertEq(composer.from(), from_);
         assertEq(composer.guid(), guid_);
         assertEq(composer.message(), composerMsg_);
         assertEq(composer.executor(), address(this));
-        assertEq(composer.extraData(), composerMsg_); // default to setting the extraData to the message as well to test
+        assertEq(composer.extraData(), composerMsg_);
     }
 
     function test_permit() public {
@@ -464,29 +503,23 @@ contract BeamBridgeTest is TestHelperOz5 {
 
         // Generate a signature for permit
         vm.prank(userA);
-        (uint8 v, bytes32 r, bytes32 s) = _signPermit(userA, userB, amountToPermit, deadline, 0); // Assuming nonce starts at 0
+        (uint8 v, bytes32 r, bytes32 s) = _signPermit(userA, userB, amountToPermit, deadline, 0);
 
-        // Before permit
-        assertEq(aToken.allowance(userA, userB), 0);
+        assertEq(bOFT.allowance(userA, userB), 0);
 
-        // Call permit
         vm.prank(userA);
         bOFT.permit(userA, userB, amountToPermit, deadline, v, r, s);
 
-        // After permit, check allowance
         assertEq(bOFT.allowance(userA, userB), amountToPermit);
 
-        // Transfer tokens using the permit method
         uint256 balanceBefore = bOFT.balanceOf(userB);
         vm.prank(userB);
         require(bOFT.transferFrom(userA, userB, amountToPermit), "Transfer not successful");
 
-        // Check that the tokens have been transferred
         assertEq(bOFT.balanceOf(userB), balanceBefore + amountToPermit);
-        assertEq(bOFT.nonces(userA), 1); // Check nonce increase
+        assertEq(bOFT.nonces(userA), 1);
     }
 
-    /// helper function
     function _signPermit(
         address owner,
         address spender,
@@ -506,23 +539,23 @@ contract BeamBridgeTest is TestHelperOz5 {
         );
 
         bytes32 digest = keccak256(abi.encodePacked("\x19\x01", bOFT.DOMAIN_SEPARATOR(), structHash));
-
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(userAPk, digest);
         return (v, r, s);
     }
 
-    /// @notice send tokens from the adapter to the OFT contract
     function oftAdapterToOft() public {
         uint256 tokensToSendIncludingFees = 2 ether;
         uint256 expectedFee = (tokensToSendIncludingFees * feePercentage) / PRECISION;
-        uint256 tokenToSendMinusFees = tokensToSendIncludingFees - expectedFee;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = removeDust(amountAfterFees);
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             bEid,
             addressToBytes32(userB),
             tokensToSendIncludingFees,
-            tokenToSendMinusFees,
+            minAmount,
             options,
             "",
             ""
@@ -539,25 +572,41 @@ contract BeamBridgeTest is TestHelperOz5 {
 
     function test_RevertIf_receiveLessThanMinAmount() public {
         bOFT.setFeePercentage(0);
-        oftAdapterToOft();
-        uint256 tokensToSend = 1.9e12;
-        uint256 minTokensToReceive = tokensToSend;
-        uint256 initBalTarget = aToken.balanceOf(userD);
+        uint256 tokensToSendIncludingFees = 1.9e12;
+        uint256 expectedFee = 0;
+        uint256 amountAfterFees = tokensToSendIncludingFees - expectedFee;
+
+        uint256 minAmount = bOFT.removeDust(amountAfterFees) + 1; // Exceed expected amount
 
         bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
         SendParam memory sendParam = SendParam(
             aEid,
             addressToBytes32(userD),
-            tokensToSend,
-            minTokensToReceive,
+            tokensToSendIncludingFees,
+            minAmount,
             options,
             "",
             ""
         );
+        vm.expectRevert(
+            abi.encodeWithSelector(IOFT.SlippageExceeded.selector, bOFT.removeDust(amountAfterFees), minAmount)
+        );
+        bOFT.quoteSend(sendParam, false);
+    }
 
-        uint256 minAmountShouldBe = (minTokensToReceive / bOFT.decimalConversionRate()) * bOFT.decimalConversionRate();
+    function test_initialize_with_different_decimals() public {
+        uint8 decimals = 4;
 
-        vm.expectRevert(abi.encodeWithSelector(IOFT.SlippageExceeded.selector, minAmountShouldBe, minTokensToReceive));
-        MessagingFee memory fee = bOFT.quoteSend(sendParam, false);
+        BeamOFTAdapter aOFTAdapter_4_decimals = BeamOFTAdapter(
+            _deployOApp(
+                type(BeamOFTAdapter).creationCode,
+                abi.encode(address(aToken), address(endpoints[aEid]), address(this), feePercentage, decimals)
+            )
+        );
+
+        // I expect decimalConversionRate being
+        // 10 ** (aToken.decimals() - aOFTAdapter.sharedDecimals())
+        // 10 ** (18 - 4)
+        assertEq(aOFTAdapter_4_decimals.decimalConversionRate(), 10 ** (18 - 4));
     }
 }

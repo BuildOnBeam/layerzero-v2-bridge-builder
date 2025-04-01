@@ -22,13 +22,22 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @param _lzEndpoint The LayerZero endpoint for cross-chain communication.
      * @param _delegate Address to delegate contract ownership.
      * @param _feePercentage The initial fee percentage to be charged on transactions. It should be in base 6: eg 1% would be 1e4
+     * @param _shareDecimals see OFTCore
      */
     constructor(
         address _token,
         address _lzEndpoint,
         address _delegate,
-        uint256 _feePercentage
-    ) BaseBeamBridge(_feePercentage, _delegate) OFTAdapter(_token, _lzEndpoint, _delegate) {}
+        uint256 _feePercentage,
+        uint8 _shareDecimals
+    ) BaseBeamBridge(_feePercentage, _delegate, _shareDecimals) OFTAdapter(_token, _lzEndpoint, _delegate) {}
+
+    /**
+    @dev override OFTCore
+     */
+    function sharedDecimals() public view override returns (uint8) {
+        return s_shareDecimals;
+    }
 
     /**
      * @notice Calculates the amount to send and receive considering custom fees.
