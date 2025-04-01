@@ -89,7 +89,9 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
         // @dev Burn OFT and send custom fees to fee receiver if custom fees are enabled
         if (s_feePercentage > 0) {
             uint256 customFee = _amountLD - amountReceivedLD;
-            innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
+            if (customFee > 0) {
+                innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
+            }
             innerToken.safeTransferFrom(_from, address(this), amountSentLD - customFee);
         } else {
             innerToken.safeTransferFrom(_from, address(this), amountSentLD);
