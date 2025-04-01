@@ -52,11 +52,11 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
         uint256 _minAmountLD,
         uint32 /*_dstEid*/
     ) internal view virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
-        amountSentLD = _amountLD;
         if (s_feePercentage > 0) {
             uint256 calculatedFees = (_amountLD * s_feePercentage) / PRECISION;
 
             amountReceivedLD = _removeDust(_amountLD - calculatedFees);
+            amountSentLD = amountReceivedLD + calculatedFees;
         } else {
             amountSentLD = _removeDust(_amountLD);
             amountReceivedLD = amountSentLD;
@@ -92,7 +92,7 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
             if (customFee > 0) {
                 innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
             }
-            innerToken.safeTransferFrom(_from, address(this), _removeDust(amountSentLD - customFee));
+            innerToken.safeTransferFrom(_from, address(this), amountSentLD - customFee);
         } else {
             innerToken.safeTransferFrom(_from, address(this), amountSentLD);
         }

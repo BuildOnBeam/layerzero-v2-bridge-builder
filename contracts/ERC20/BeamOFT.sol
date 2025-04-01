@@ -58,11 +58,11 @@ contract BeamOFT is BaseBeamBridge, OFT, ERC20Permit, ERC20Burnable {
         uint256 _minAmountLD,
         uint32 /*_dstEid*/
     ) internal view virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
-        amountSentLD = _amountLD;
         if (s_feePercentage > 0) {
             uint256 calculatedFees = (_amountLD * s_feePercentage) / PRECISION;
 
             amountReceivedLD = _removeDust(_amountLD - calculatedFees);
+            amountSentLD = amountReceivedLD + calculatedFees;
         } else {
             amountSentLD = _removeDust(_amountLD);
             amountReceivedLD = amountSentLD;
@@ -97,7 +97,7 @@ contract BeamOFT is BaseBeamBridge, OFT, ERC20Permit, ERC20Burnable {
         if (s_feePercentage > 0) {
             uint256 customFee = (_amountLD * s_feePercentage) / PRECISION;
             _transfer(_from, s_feeReceiver, customFee);
-            _burn(_from, _removeDust(amountSentLD - customFee));
+            _burn(_from, amountSentLD - customFee);
         } else {
             _burn(_from, amountSentLD);
         }
