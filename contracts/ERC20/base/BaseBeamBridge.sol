@@ -31,8 +31,8 @@ abstract contract BaseBeamBridge is Ownable {
 
     /**
      * @dev Constructor for BaseBeamBridge.
-     * @param _feePercentage Initial fee percentage for transactions, should be expressed with 1e18 precision. eg 1% would be 1e16
-     * @param _delegate The address being delegated as the owner of this contract.
+     * @param _feePercentage Initial fee percentage for transactions, should be expressed with 1e6 precision. e.g., 1% would be 1e4
+     * @param _delegate The address being delegated as the owner of this contract and initial fee receiver.
      */
     constructor(uint256 _feePercentage, address _delegate, uint8 _shareDecimals) Ownable(_delegate) {
         _setFeePercentage(_feePercentage);
