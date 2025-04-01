@@ -68,7 +68,7 @@ python3 print_deploy_command.py
 ```
 
 > After running this command, you'll have printed a `make` command to be executed, like this:
-> `make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=TESTEN SYMBOL=TTEN DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=10000000000000000 IS_PERMIT=false RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789`
+> `make deploy-oft-bridge ACCOUNT_NAME=beam-test-1 NAME=Test SYMBOL=TS DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 PERCENTAGE=1000 RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789 SHARED_DECIMALS=6`
 
 2. Execute the printed make command
    eg:
