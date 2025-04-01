@@ -96,7 +96,7 @@ contract BeamOFT is BaseBeamBridge, OFT, ERC20Permit, ERC20Burnable {
         // @dev Burn OFT and send custom fees to fee receiver if custom fees are enabled
         if (s_feePercentage > 0) {
             uint256 customFee = _amountLD - amountReceivedLD;
-            IERC20(address(this)).safeTransferFrom(_from, s_feeReceiver, customFee);
+            _transfer(_from, s_feeReceiver, customFee);
             _burn(_from, amountSentLD - customFee);
         } else {
             _burn(_from, amountSentLD);
