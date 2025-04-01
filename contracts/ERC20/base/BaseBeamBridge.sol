@@ -35,8 +35,8 @@ abstract contract BaseBeamBridge is Ownable {
      * @param _delegate The address being delegated as the owner of this contract.
      */
     constructor(uint256 _feePercentage, address _delegate, uint8 _shareDecimals) Ownable(_delegate) {
-        setFeePercentage(_feePercentage);
-        setFeeReceiver(msg.sender);
+        _setFeePercentage(_feePercentage);
+        _setFeeReceiver(_delegate); 
         s_shareDecimals = _shareDecimals;
     }
 
@@ -46,6 +46,23 @@ abstract contract BaseBeamBridge is Ownable {
      * @param _feeReceiver The address to set as the new fee receiver.
      */
     function setFeeReceiver(address _feeReceiver) public onlyOwner {
+        _setFeeReceiver(_feeReceiver);
+    }
+
+    /**
+     * @notice Updates the fee percentage charged on transactions.
+     * @dev Can only be called by the current owner. The percentage should be in 1e6 precision. e.g., 1% would be 1e4
+     * @param _feePercentage The new fee percentage to set.
+     */
+    function setFeePercentage(uint256 _feePercentage) public onlyOwner {
+        _setFeePercentage(_feePercentage);
+    }
+
+    /**
+     * @dev Internal function to set the fee receiver address.
+     * @param _feeReceiver The address to set as the new fee receiver.
+     */
+    function _setFeeReceiver(address _feeReceiver) internal {
         if (_feeReceiver == address(0)) {
             revert BaseBeamBridge__ZeroAddress();
         }
@@ -54,11 +71,10 @@ abstract contract BaseBeamBridge is Ownable {
     }
 
     /**
-     * @notice Updates the fee percentage charged on transactions.
-     * @dev Can only be called by the current owner. The percentage should be in 1e6 precision. eg 1% would be 1e4
+     * @dev Internal function to set the fee percentage.
      * @param _feePercentage The new fee percentage to set.
      */
-    function setFeePercentage(uint256 _feePercentage) public onlyOwner {
+    function _setFeePercentage(uint256 _feePercentage) internal {
         if (_feePercentage >= PRECISION) revert BaseBeamBridge__InvalidFeePercentage();
         s_feePercentage = _feePercentage;
         emit FeePercentageSet(_feePercentage);
