@@ -6,22 +6,24 @@
 ############# 		     DEPLOY BRIDGE	            #######
 ###########################################################
 
-#  make deploy-oft-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 NAME=BEAMLINK SYMBOL=BMLINK  DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789 PERCENTAGE=10000000000000000 IS_PERMIT=true
+#  make deploy-oft-bridge RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 ACCOUNT_NAME=beam-test-1 NAME=BEAMLINK SYMBOL=BMLINK  DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789 PERCENTAGE=1000 IS_PERMIT=true SHARED_DECIMALS=6 
 deploy-oft-bridge:
 	$(MAKE) run-deploy-beam-oft \
 		RPC_URL=${RPC_URL_A} \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
 		NAME=$(NAME) SYMBOL=$(SYMBOL) \
 		CHAIN_ID=$(CHAIN_ID_A) \
-		DELEGATE=$(DELEGATE)
-		PERCENTAGE=$(PERCENTAGE)
+		DELEGATE=$(DELEGATE) \
+		PERCENTAGE=$(PERCENTAGE) \
+		SHARED_DECIMALS=$(SHARED_DECIMALS) 
 	$(MAKE) run-deploy-beam-oft-adapter \
 		RPC_URL=${RPC_URL_B} \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
 		CHAIN_ID=$(CHAIN_ID_B) \
 		DELEGATE=$(DELEGATE) \
-		TOKEN=$(TOKEN)
-		PERCENTAGE=$(PERCENTAGE)
+		TOKEN=$(TOKEN) \
+		PERCENTAGE=$(PERCENTAGE) \
+		SHARED_DECIMALS=$(SHARED_DECIMALS) 
 
 
 ###########################################################
@@ -39,7 +41,7 @@ run-deploy-beam-oft:
 		--rpc-url $(RPC_URL) \
 		--broadcast \
 		--account ${ACCOUNT_NAME} \
-		--sig "$(DEPLOY_OFT_SCRIPT_SIG)" $(NAME) $(SYMBOL) $(CHAIN_ID) $(DELEGATE) $(PERCENTAGE) \
+		--sig "$(DEPLOY_OFT_SCRIPT_SIG)" $(NAME) $(SYMBOL) $(CHAIN_ID) $(DELEGATE) $(PERCENTAGE) $(SHARED_DECIMALS) \
 		-vvvv --verify --verifier sourcify		
 
 # make deploy-beam-oft RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 NAME=Test SYMBOL=TST CHAIN_ID=11155111 DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
@@ -52,7 +54,7 @@ run-deploy-beam-oft-adapter:
 		--rpc-url $(RPC_URL) \
 		--broadcast \
 		--account ${ACCOUNT_NAME} \
-		--sig "$(DEPLOY_OFT_ADAPTER_SCRIPT_SIG)" $(CHAIN_ID) $(DELEGATE) $(TOKEN) $(PERCENTAGE)\
+		--sig "$(DEPLOY_OFT_ADAPTER_SCRIPT_SIG)" $(CHAIN_ID) $(DELEGATE) $(TOKEN) $(PERCENTAGE) $(SHARED_DECIMALS)  \
 		-vvvv --legacy --verify --etherscan-api-key $(ETHERSCAN_API_KEY)
 
 # make deploy-beam-oft-adapter RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CHAIN_ID=11155111 DELEGATE=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87 TOKEN=0x779877A7B0D9E8603169DdbD7836e478b4624789

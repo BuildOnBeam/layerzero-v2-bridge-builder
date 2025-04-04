@@ -27,6 +27,7 @@ def main():
     token = get_user_input("Enter the address of the token to bridge","0x779877A7B0D9E8603169DdbD7836e478b4624789")
     rpc_url_a = get_user_input("Enter RPC URL for the chain to deploy OFT on. It is the \"destination\" chain of the token to bridge","https://build.onbeam.com/rpc/testnet")
     chain_id_a = int(get_user_input("for the chain to deploy OFT on. It is the \"destination\" chain of the token to bridge",13337))
+    sharedDecimals = int(get_user_input("just needed if the token maxsupply exceeds 18.45T",6))
     
 
     # Construct environment variables from user inputs
@@ -40,7 +41,8 @@ def main():
         "CHAIN_ID_A": str(chain_id_a),
         "RPC_URL_B": rpc_url_b,
         "CHAIN_ID_B": str(chain_id_b),
-        "TOKEN": token
+        "TOKEN": token,
+        "SHARED_DECIMALS": sharedDecimals
     }
 
     # Print the make command instead of executing it
