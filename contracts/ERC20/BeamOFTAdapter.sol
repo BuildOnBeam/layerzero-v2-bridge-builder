@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.22;
+pragma solidity ^0.8.28;
 
-import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
-
-import {BaseBeamBridge} from "./base/BaseBeamBridge.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { OFTAdapter } from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
+import { BaseBeamBridge } from "./base/BaseBeamBridge.sol";
+import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @title BeamOFTAdapter
@@ -23,11 +22,22 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @param _lzEndpoint The LayerZero endpoint for cross-chain communication.
      * @param _delegate Address to delegate contract ownership.
      * @param _feePercentage The initial fee percentage to be charged on transactions. It should be in base 6: eg 1% would be 1e4
+     * @param _shareDecimals see OFTCore
      */
-    constructor(address _token, address _lzEndpoint, address _delegate, uint256 _feePercentage)
-        BaseBeamBridge(_feePercentage, _delegate)
-        OFTAdapter(_token, _lzEndpoint, _delegate)
-    {}
+    constructor(
+        address _token,
+        address _lzEndpoint,
+        address _delegate,
+        uint256 _feePercentage,
+        uint8 _shareDecimals
+    ) BaseBeamBridge(_feePercentage, _delegate, _shareDecimals) OFTAdapter(_token, _lzEndpoint, _delegate) {}
+
+    /**
+    @dev override OFTCore
+     */
+    function sharedDecimals() public view override returns (uint8) {
+        return s_shareDecimals;
+    }
 
     /**
      * @notice Calculates the amount to send and receive considering custom fees.
@@ -37,21 +47,19 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @return amountSentLD The amount actually debited from the sender in local decimals.
      * @return amountReceivedLD The amount to be received on the remote chain after fees, in local decimals.
      */
-    function _debitView(uint256 _amountLD, uint256 _minAmountLD, uint32 /*_dstEid*/ )
-        internal
-        view
-        virtual
-        override
-        returns (uint256 amountSentLD, uint256 amountReceivedLD)
-    {
-        amountSentLD = _amountLD;
+    function _debitView(
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 /*_dstEid*/
+    ) internal view virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         if (s_feePercentage > 0) {
             uint256 calculatedFees = (_amountLD * s_feePercentage) / PRECISION;
 
             amountReceivedLD = _removeDust(_amountLD - calculatedFees);
+            amountSentLD = amountReceivedLD + calculatedFees;
         } else {
-            amountReceivedLD = _amountLD;
             amountSentLD = _removeDust(_amountLD);
+            amountReceivedLD = amountSentLD;
         }
 
         // @dev Check for slippage.
@@ -70,21 +78,23 @@ contract BeamOFTAdapter is BaseBeamBridge, OFTAdapter {
      * @return amountSentLD The actual amount debited after fee application.
      * @return amountReceivedLD The amount to be received on the remote chain.
      */
-    function _debit(address _from, uint256 _amountLD, uint256 _minAmountLD, uint32 _dstEid)
-        internal
-        virtual
-        override
-        returns (uint256 amountSentLD, uint256 amountReceivedLD)
-    {
+    function _debit(
+        address _from,
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 _dstEid
+    ) internal virtual override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
 
         // @dev Burn OFT and send custom fees to fee receiver if custom fees are enabled
         if (s_feePercentage > 0) {
-            uint256 customFee = _amountLD - amountReceivedLD;
-            innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
+            uint256 customFee = (_amountLD * s_feePercentage) / PRECISION;
+            if (customFee > 0) {
+                innerToken.safeTransferFrom(_from, s_feeReceiver, customFee);
+            }
             innerToken.safeTransferFrom(_from, address(this), amountSentLD - customFee);
         } else {
-            innerToken.safeTransferFrom(_from, address(this), amountReceivedLD);
+            innerToken.safeTransferFrom(_from, address(this), amountSentLD);
         }
     }
 }

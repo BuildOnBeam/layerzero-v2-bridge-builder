@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {OFT} from "@layerzerolabs/oft-evm/contracts/OFT.sol";
-import {SendParam} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
-import {BeamOFT} from "../../contracts/ERC20/BeamOFT.sol";
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { OFT, OFTCore } from "@layerzerolabs/oft-evm/contracts/OFT.sol";
+import { SendParam } from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
+import { BaseBeamBridge } from "../../contracts/ERC20/base/BaseBeamBridge.sol";
+import { BeamOFT } from "../../contracts/ERC20/BeamOFT.sol";
 
 contract OFTMock is BeamOFT {
     constructor(
@@ -12,26 +13,28 @@ contract OFTMock is BeamOFT {
         string memory _symbol,
         address _lzEndpoint,
         address _delegate,
-        uint256 _feePercentage
-    ) BeamOFT(_name, _symbol, _lzEndpoint, _delegate, _feePercentage) {}
+        uint256 _feePercentage,
+        uint8 _sharedDecimals
+    ) BeamOFT(_name, _symbol, _lzEndpoint, _delegate, _feePercentage, _sharedDecimals) {}
 
     function mint(address _to, uint256 _amount) public {
         _mint(_to, _amount);
     }
 
     // @dev expose internal functions for testing purposes
-    function debit(uint256 _amountToSendLD, uint256 _minAmountToCreditLD, uint32 _dstEid)
-        public
-        returns (uint256 amountDebitedLD, uint256 amountToCreditLD)
-    {
+    function debit(
+        uint256 _amountToSendLD,
+        uint256 _minAmountToCreditLD,
+        uint32 _dstEid
+    ) public returns (uint256 amountDebitedLD, uint256 amountToCreditLD) {
         return _debit(msg.sender, _amountToSendLD, _minAmountToCreditLD, _dstEid);
     }
 
-    function debitView(uint256 _amountToSendLD, uint256 _minAmountToCreditLD, uint32 _dstEid)
-        public
-        view
-        returns (uint256 amountDebitedLD, uint256 amountToCreditLD)
-    {
+    function debitView(
+        uint256 _amountToSendLD,
+        uint256 _minAmountToCreditLD,
+        uint32 _dstEid
+    ) public view returns (uint256 amountDebitedLD, uint256 amountToCreditLD) {
         return _debitView(_amountToSendLD, _minAmountToCreditLD, _dstEid);
     }
 
@@ -51,11 +54,10 @@ contract OFTMock is BeamOFT {
         return _credit(_to, _amountToCreditLD, _srcEid);
     }
 
-    function buildMsgAndOptions(SendParam calldata _sendParam, uint256 _amountToCreditLD)
-        public
-        view
-        returns (bytes memory message, bytes memory options)
-    {
+    function buildMsgAndOptions(
+        SendParam calldata _sendParam,
+        uint256 _amountToCreditLD
+    ) public view returns (bytes memory message, bytes memory options) {
         return _buildMsgAndOptions(_sendParam, _amountToCreditLD);
     }
 

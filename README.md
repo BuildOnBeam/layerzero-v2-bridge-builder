@@ -95,6 +95,12 @@ make wire-bridge ACCOUNT_NAME=beam-test-1 RPC_URL_A=https://build.onbeam.com/rpc
 
 This command deploys two contracts on two chains using the LayerZero OFT standard for ERC20 tokens with `oftadapter`.
 
+### Before deploying the bridge
+
+- check the max supply of the token on each chain. By default, OFT [has a max supply (2^64 - 1)/(10^6)](https://docs.layerzero.network/v2/developers/evm/oft/quickstart#token-supply-cap). If the supply of the token in its native chain exceeds this value, override `shareDecimals` if needed.
+- check the EVM version of each chain since some version could not support `PUSH0` opcode. so far [Linea](https://www.evmdiff.com/features?feature=opcodes) is the only one not supporting it. Ensure that the target networks support the PUSH0 opcode and, if that is not the case, change the EVM version to Paris in the foundry.toml configuration file
+-
+
 <details>
   <summary><strong>Commands for Deploying an OFT Bridge (ERC20)</strong></summary>
 
