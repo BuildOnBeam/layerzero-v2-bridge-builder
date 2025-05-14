@@ -23,9 +23,15 @@ run-bridge-token:
 		--sig "$(BRIDGE_TOKEN_SIG)"  $(CHAIN_ID) $(CONTRACT) ${AMOUNT} ${DESTINATION} \
 		-vvvvvvv --legacy 
 	
-# make test-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0xbab0169B7985F3f33b9e2d780Dd8f334E777aDE8 CHAIN_ID=13337 CHAIN_ID=11155111 AMOUNT=5000000000000000000 DESTINATION=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
+# make test-bridge RPC_URL=https://ethereum-sepolia-rpc.publicnode.com ACCOUNT_NAME=beam-test-1 CONTRACT=0x1cb99e0c2c03c43d0750d15f391c6b4534750175 CHAIN_ID=13337 AMOUNT=5000000000000000000 DESTINATION=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
+
+# ^^^^^ from sepolia to beam
+
+
 # make test-bridge RPC_URL=https://build.onbeam.com/rpc/testnet ACCOUNT_NAME=beam-test-1 CONTRACT=0x8310D1b3eDD1fdC579733b522e3315f0EE8f4Da4 CHAIN_ID=11155111 AMOUNT=1000000000000000000 DESTINATION=0x7f50CF0163B3a518d01fE480A51E7658d1eBeF87
 # the chain id is the destination chain id
+
+# ^^^^^ from beam to sepolia
 test-bridge: 
 	$(MAKE) run-bridge-token RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=$(CONTRACT) AMOUNT=${AMOUNT} DESTINATION=${DESTINATION} 
 
