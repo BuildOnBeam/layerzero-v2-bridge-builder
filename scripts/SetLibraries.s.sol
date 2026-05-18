@@ -7,7 +7,7 @@ import "forge-std/Script.sol";
 
 // LayerZero imports
 import {ILayerZeroEndpointV2} from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
-import {LzConfig} from "../deploy/foundry/LzConfig.sol";
+import {LzConfig} from "../deploy/LzConfig.sol";
 
 contract SetLibraries is Script {
     function setLibraries(address _oapp, uint256 _originChainID, uint256 _destinationChainID) external {

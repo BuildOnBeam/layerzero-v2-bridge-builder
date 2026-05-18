@@ -1,14 +1,14 @@
 -include .env
 
 # script paths
-SET_PEER_SCRIPT_PATH = lz-scripts/SetPeers.s.sol
-GET_INFO_SCRIPT_PATH = lz-scripts/GetInfos.s.sol
-BRIDGE_SCRIPT_PATH = lz-scripts/BridgeToken.s.sol
-DEPLOY_OFT_SCRIPT_PATH = deploy/foundry/ERC20/DeployBeamOFT.s.sol
-DEPLOY_OFT_ADAPTER_SCRIPT_PATH = deploy/foundry/ERC20/DeployBeamOFTAdapter.s.sol
-DEPLOY_ONFT_SCRIPT_PATH = deploy/foundry/ERC721/DeployBeamONFT.s.sol
-DEPLOY_ONFT_ADAPTER_SCRIPT_PATH = deploy/foundry/ERC721/DeployBeamONFTAdapter.s.sol
-SET_LIBS_SCRIPT_PATH = lz-scripts/SetLibraries.s.sol
+SET_PEER_SCRIPT_PATH = scripts/SetPeers.s.sol
+GET_INFO_SCRIPT_PATH = scripts/GetInfos.s.sol
+BRIDGE_SCRIPT_PATH = scripts/BridgeToken.s.sol
+DEPLOY_OFT_SCRIPT_PATH = deploy/ERC20/DeployBeamOFT.s.sol
+DEPLOY_OFT_ADAPTER_SCRIPT_PATH = deploy/ERC20/DeployBeamOFTAdapter.s.sol
+DEPLOY_ONFT_SCRIPT_PATH = deploy/ERC721/DeployBeamONFT.s.sol
+DEPLOY_ONFT_ADAPTER_SCRIPT_PATH = deploy/ERC721/DeployBeamONFTAdapter.s.sol
+SET_LIBS_SCRIPT_PATH = scripts/SetLibraries.s.sol
 
 # script signatures
 SET_PEER_SIG = runSetPeer(uint256,address,address)

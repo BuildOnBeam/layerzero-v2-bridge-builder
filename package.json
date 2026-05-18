@@ -65,7 +65,18 @@
     "overrides": {
       "ethers": "^5.7.2",
       "hardhat-deploy": "^0.12.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "bufferutil",
+      "es5-ext",
+      "keccak",
+      "secp256k1",
+      "unrs-resolver",
+      "utf-8-validate",
+      "web3",
+      "web3-bzz",
+      "web3-shh"
+    ]
   },
   "overrides": {
     "ethers": "^5.7.2",

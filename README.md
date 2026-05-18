@@ -18,7 +18,7 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 ## Install dependencies
 
-To start, install the dependencies running `npm i`
+To start, install the dependencies running `pnpm i`
 
 ## Before starting (IMPORTANT)
 

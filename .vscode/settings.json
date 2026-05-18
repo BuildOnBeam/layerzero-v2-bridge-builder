@@ -1,5 +1,18 @@
 {
   "files.associations": {
     "Makefile.*": "makefile"
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "solidity.formatter": "forge",
+  "[solidity]": {
+    "editor.tabSize": 4,
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+  },
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "json.format.enable": true,
+  "cSpell.words": [],
+  "search.exclude": {
+    "**/node_modules": true
   }
 }

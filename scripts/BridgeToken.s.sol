@@ -8,7 +8,7 @@ import {SendParam} from "@layerzerolabs/oft-evm/contracts/interfaces/IOFT.sol";
 import {MessagingFee, MessagingReceipt} from "@layerzerolabs/oft-evm/contracts/OFTCore.sol";
 import {BeamOFTAdapter} from "../contracts/ERC20/BeamOFTAdapter.sol";
 import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
-import {LzConfig} from "../deploy/foundry/LzConfig.sol";
+import {LzConfig} from "../deploy/LzConfig.sol";
 import "forge-std/console.sol";
 
 // this script is for bridging from sepolia to holesky

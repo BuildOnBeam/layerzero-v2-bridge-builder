@@ -5,7 +5,7 @@ out = 'out'
 test = 'test/foundry'
 cache_path = 'cache/foundry'
 optimizer = true
-optimizer_runs = 1  # Adjust the number of runs to fit your needs
+optimizer_runs = 200  # Adjust the number of runs to fit your needs
 via_ir = true
 
 libs = [
