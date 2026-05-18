@@ -4,6 +4,10 @@ This document explains how to deploy contracts on two chains using LayerZero's O
 
 In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, so for now, ERC1155 cannot be bridged with the lz-v2.
 
+## Notes
+
+ERC721 are not ready yet. For now only ERC20 are ok to go.
+
 # Table of Contents
 
 1. [Install dependencies](#install-dependencies)
@@ -18,11 +22,9 @@ In the future, Layerzero will deploy also the adapter and the oft for ERC1155s, 
 
 ## Install dependencies
 
-To start, install the dependencies running `pnpm i`
+To start, install the dependencies running `pnpm i`.
 
-## Before starting (IMPORTANT)
-
-ERC721 are not ready yet. For now only ERC20 are ok to go
+**Install Python**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/) if it's not already installed.
 
 ### Deployer account and privkey security
 
@@ -40,7 +42,7 @@ cast wallet import <name of account> --interactive
 // now your pk is secure in a keystore
 ```
 
-**IMPORTANT:** Probabaly redundant to mention, but the password will be needed during the deployment scripts so don't forget/lose it!
+**IMPORTANT:** Probably redundant to mention, but the password will be needed during the deployment scripts so don't forget/lose it!
 
 ## Create the .env file
 
@@ -49,15 +51,6 @@ Before you begin with calling the print scripts, create an .env file in the root
 For the ETHERSCAN_API_KEY set the value to your own API Key. Get one from: https://etherscan.io/register
 
 ## Using the CLI to deploy an ERC20 bridge
-
-### installation
-
-You need to have Python installed on your system and install the required dependencies. Here's how to do it:
-
-- **Install Python**: Ensure you have Python installed. You can download it from [python.org](https://www.python.org/downloads/) if it's not already installed.
-- **Install Dependencies**: Navigate to the directory containing your Python scripts and install the dependencies by running:
-
-`cd cli && pip install -r requirements.txt`
 
 ### Usage
 
@@ -89,7 +82,7 @@ python3 print_wire_bridge_command.py
 make wire-bridge ACCOUNT_NAME=beam-test-1 RPC_URL_A=https://build.onbeam.com/rpc/testnet CHAIN_ID_A=13337 RPC_URL_B=https://ethereum-sepolia-rpc.publicnode.com CHAIN_ID_B=11155111 PEER_A=0x22D8346837BaF22Ade1502a66fa60b4810b2d2b5 PEER_B=0x9667d750C1A554C5D81E191a46C67991A923B841
 ```
 
-> At this point you should have succesfully deploy the bridge.
+> At this point you should have successfully deploy the bridge.
 
 ## Deploying an OFT Bridge (ERC20)
 
