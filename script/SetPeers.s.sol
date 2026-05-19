@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {OAppCore} from "@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol";
-import {LzConfig} from "../deploy/LzConfig.sol";
+import {LzConfig} from "./LzConfig.sol";
 
 // this script should be called after deployment of the OFT contracts
 contract SetPeers is Script {

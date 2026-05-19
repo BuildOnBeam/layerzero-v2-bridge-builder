@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import {Script, console2} from "forge-std/Script.sol";
 import {BeamONFT721} from "../../../contracts/ERC721/BeamONFT721.sol";
-import {LzConfig} from "../LzConfig.sol";
+import {LzConfig} from "../../script/LzConfig.sol";
 
 /**
  * @notice This script deploy an OFT with the correct endpoint address

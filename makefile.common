@@ -1,14 +1,14 @@
 -include .env
 
 # script paths
-SET_PEER_SCRIPT_PATH = scripts/SetPeers.s.sol
-GET_INFO_SCRIPT_PATH = scripts/GetInfos.s.sol
-BRIDGE_SCRIPT_PATH = scripts/BridgeToken.s.sol
+SET_PEER_SCRIPT_PATH = script/SetPeers.s.sol
+GET_INFO_SCRIPT_PATH = script/GetInfos.s.sol
+BRIDGE_SCRIPT_PATH = script/BridgeToken.s.sol
 DEPLOY_OFT_SCRIPT_PATH = deploy/ERC20/DeployBeamOFT.s.sol
 DEPLOY_OFT_ADAPTER_SCRIPT_PATH = deploy/ERC20/DeployBeamOFTAdapter.s.sol
 DEPLOY_ONFT_SCRIPT_PATH = deploy/ERC721/DeployBeamONFT.s.sol
 DEPLOY_ONFT_ADAPTER_SCRIPT_PATH = deploy/ERC721/DeployBeamONFTAdapter.s.sol
-SET_LIBS_SCRIPT_PATH = scripts/SetLibraries.s.sol
+SET_LIBS_SCRIPT_PATH = script/SetLibraries.s.sol
 
 # script signatures
 SET_PEER_SIG = runSetPeer(uint256,address,address)
@@ -34,13 +34,13 @@ wire-bridge:
 		RPC_URL=${RPC_URL_A} \
 		CHAIN_ID=${CHAIN_ID_B} \
 		CONTRACT=${PEER_A} \
-		PEER=${PEER_B} 
+		PEER=${PEER_B}
 	$(MAKE) add-peer \
 		ACCOUNT_NAME=${ACCOUNT_NAME} \
 		RPC_URL=${RPC_URL_B} \
 		CHAIN_ID=${CHAIN_ID_A} \
 		CONTRACT=${PEER_B} \
-		PEER=${PEER_A} 
+		PEER=${PEER_A}
 
 ###########################################################
 #######  RUNNING THE ABOVE COMMAND SHOULD BE ENOUGH    ####
@@ -58,11 +58,11 @@ run-add-peer:
 		--broadcast \
 		--account ${ACCOUNT_NAME} \
 		--sig "$(SET_PEER_SIG)" $(CHAIN_ID) $(CONTRACT) $(PEER) \
-		-vvvv --legacy 
+		-vvvv --legacy
 
 
-# make add-peer ACCOUNT_NAME=beam-test-1   RPC_URL=${RPC_URL} CHAIN_ID=${CHAIN_ID} CONTRACT=${CONTRACT} PEER=0x1c33A56bf6218d3C6F62E5465f3b8d1C97214B72 
-add-peer: 
+# make add-peer ACCOUNT_NAME=beam-test-1   RPC_URL=${RPC_URL} CHAIN_ID=${CHAIN_ID} CONTRACT=${CONTRACT} PEER=0x1c33A56bf6218d3C6F62E5465f3b8d1C97214B72
+add-peer:
 	@$(MAKE) run-add-peer RPC_URL=${RPC_URL} ACCOUNT_NAME=${ACCOUNT_NAME} CHAIN_ID=${CHAIN_ID} CONTRACT=${CONTRACT} PEER=${PEER}
 
 
@@ -75,7 +75,7 @@ run-get-info:
 		--rpc-url $(RPC_URL) \
 		--broadcast \
 		--sig "$(GET_INFOS_SIG)" $(CONTRACT) $(EID) \
-		-vvvv --legacy 
+		-vvvv --legacy
 
 #  make get-info RPC_URL=https://build.onbeam.com/rpc/testnet  EID=40178 CONTRACT=0xd14c56F867a3FA55AA33FfCB391d1f6972b02630
 #  make get-info RPC_URL=https://ethereum-sepolia-rpc.publicnode.com   EID=40161 CONTRACT=0x9870477f93CADa260978Aec3F380f074ECB8697B

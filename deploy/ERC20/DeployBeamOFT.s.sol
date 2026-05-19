@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { Script, console2 } from "forge-std/Script.sol";
-import { BeamOFT } from "../../../contracts/ERC20/BeamOFT.sol";
-import { LzConfig } from "../LzConfig.sol";
+import {Script, console2} from "forge-std/Script.sol";
+import {BeamOFT} from "../../../contracts/ERC20/BeamOFT.sol";
+import {LzConfig} from "../../script/LzConfig.sol";
 
 /**
  * @notice This script deploy an OFT with the correct endpoint address

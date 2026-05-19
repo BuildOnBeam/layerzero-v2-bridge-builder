@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {UlnConfig} from "@layerzerolabs/lz-evm-messagelib-v2/contracts/uln/UlnBase.sol";
+
 contract LzConfig {
+    uint8 public constant NIL_DVN_COUNT = type(uint8).max;
+    uint64 public constant NIL_CONFIRMATIONS = type(uint64).max;
+
     struct LzContracts {
         address executor;
         address endpointV2;
@@ -13,6 +18,7 @@ contract LzConfig {
     }
 
     mapping(uint256 chainID => LzContracts) public networkAddresses;
+    mapping(uint256 chainID => UlnConfig) public ulnConfigs;
 
     constructor() {
         //TESTNETs
@@ -37,6 +43,15 @@ contract LzConfig {
             receiveUln302: 0x0F7De6155DDC16A96c0d110A488bc966Aad3991b,
             eid: 40178
         });
+        ulnConfigs[13337] = UlnConfig({
+            confirmations: 1,
+            requiredDVNCount: 1,
+            optionalDVNCount: NIL_DVN_COUNT,
+            optionalDVNThreshold: 0,
+            requiredDVNs: new address[](1),
+            optionalDVNs: new address[](0)
+        });
+        ulnConfigs[13337].requiredDVNs[0] = address(0x51B5bA90288c2253cFa03CA71bd1F04b53c423dd);
 
         // Holesky-Testnet
         networkAddresses[17000] = LzContracts({
@@ -48,6 +63,15 @@ contract LzConfig {
             receiveUln302: 0xbAe52D605770aD2f0D17533ce56D146c7C964A0d,
             eid: 40217
         });
+        ulnConfigs[17000] = UlnConfig({
+            confirmations: 1,
+            requiredDVNCount: 1,
+            optionalDVNCount: NIL_DVN_COUNT,
+            optionalDVNThreshold: 0,
+            requiredDVNs: new address[](1),
+            optionalDVNs: new address[](0)
+        });
+        ulnConfigs[17000].requiredDVNs[0] = address(0x3E43f8ff0175580f7644DA043071c289DDf98118);
 
         // Fuji-Testnet
         networkAddresses[43113] = LzContracts({
@@ -59,6 +83,15 @@ contract LzConfig {
             receiveUln302: 0x819F0FAF2cb1Fba15b9cB24c9A2BDaDb0f895daf,
             eid: 40106
         });
+        ulnConfigs[43113] = UlnConfig({
+            confirmations: 1,
+            requiredDVNCount: 1,
+            optionalDVNCount: NIL_DVN_COUNT,
+            optionalDVNThreshold: 0,
+            requiredDVNs: new address[](1),
+            optionalDVNs: new address[](0)
+        });
+        ulnConfigs[43113].requiredDVNs[0] = address(0x3E43f8ff0175580f7644DA043071c289DDf98118);
 
         // MAINNETs
         // Beam
@@ -120,5 +153,9 @@ contract LzConfig {
     // Function to retrieve addresses for a given network
     function getLzContracts(uint256 chainID) external view returns (LzContracts memory) {
         return networkAddresses[chainID];
+    }
+
+    function getSendConfig(uint256 chainID) external view returns (UlnConfig memory) {
+        return ulnConfigs[chainID];
     }
 }

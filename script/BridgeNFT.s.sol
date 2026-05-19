@@ -10,7 +10,7 @@
 // import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
 // import {OFTAdapter} from "@layerzerolabs/oft-evm/contracts/OFTAdapter.sol";
 // import {IERC20} from "@openzeppelin/contracts/interfaces/IERC20.sol";
-// import {LzConfig} from "../deploy/LzConfig.sol";
+// import {LzConfig} from "./LzConfig.sol";
 // import {BeamONFT721Adapter} from "../contracts/ERC721/BeamONFT721Adapter.sol";
 
 // // this script is for bridging from sepolia to holesky
