@@ -32,6 +32,15 @@ contract LzConfig {
             receiveUln302: 0xdAf00F5eE2158dD58E0d3857851c432E34A3A851,
             eid: 40161
         });
+        ulnConfigs[11155111] = UlnConfig({
+            confirmations: 1,
+            requiredDVNCount: 1,
+            optionalDVNCount: NIL_DVN_COUNT,
+            optionalDVNThreshold: 0,
+            requiredDVNs: new address[](1),
+            optionalDVNs: new address[](0)
+        });
+        ulnConfigs[11155111].requiredDVNs[0] = address(0x8eebf8b423B73bFCa51a1Db4B7354AA0bFCA9193);
 
         // Beam-Testnet
         networkAddresses[13337] = LzContracts({
